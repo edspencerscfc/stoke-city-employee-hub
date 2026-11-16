@@ -116,18 +116,33 @@
       </div>
     </section>
 
-    <section class="notice-section">
-      <div class="container">
-        <div class="notice">
-          <strong>Staff notice</strong>
-          <p>
-            Use this space for important club updates, key dates,
-            planned works or time-sensitive information.
-          </p>
-          <a href="#news">View updates →</a>
+    <section class="notice-section" aria-label="Important staff notice">
+  <div class="notice-ticker">
+    <div class="notice-ticker__label">
+      <span class="notice-ticker__dot" aria-hidden="true"></span>
+      Staff Notice
+    </div>
+
+    <div class="notice-ticker__window">
+      <div class="notice-ticker__track">
+        <div class="notice-ticker__message">
+          <strong>Important update:</strong>
+          This area can be used for key club updates, planned works,
+          important dates or time-sensitive information for colleagues.
+          <a href="#news">View updates</a>
+        </div>
+
+        <!-- Repeated version creates a smoother continuous ticker -->
+        <div class="notice-ticker__message" aria-hidden="true">
+          <strong>Important update:</strong>
+          This area can be used for key club updates, planned works,
+          important dates or time-sensitive information for colleagues.
+          <a href="#news">View updates</a>
         </div>
       </div>
-    </section>
+    </div>
+  </div>
+</section>
 
     <section class="section news-section" id="news">
       <div class="container">
