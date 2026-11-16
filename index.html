@@ -8,13 +8,13 @@
   >
   <meta
     name="description"
-    content="Stoke City FC Employee Hub — club news, services and useful staff links."
+    content="Stoke City FC Employee Hub — club news, useful resources and staff links."
   >
   <title>Employee Hub | Stoke City FC</title>
 
   <!-- Temporary prototype fonts:
-       Titillium Web for UI/body text
-       Roboto Slab as a close temporary alternative to Victoria -->
+       Titillium Web for user-interface and body copy.
+       Roboto Slab as a close temporary approximation of Victoria. -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -25,18 +25,22 @@
   <link rel="stylesheet" href="style.css">
 </head>
 
-<body>
+<body id="top">
   <div class="top-strip">
     <div class="container top-strip__inner">
-      <a href="#quick-links">Quick links</a>
-      <a href="#news">Staff news</a>
+      <a href="#news">Club news</a>
+      <a href="#quick-links">Useful resources</a>
       <a href="#contact">Need support?</a>
     </div>
   </div>
 
   <header class="site-header">
     <div class="container header-inner">
-      <a class="brand" href="#" aria-label="Stoke City Employee Hub home">
+      <a
+        class="brand"
+        href="#top"
+        aria-label="Stoke City Employee Hub home"
+      >
         <img
           class="brand__crest"
           src="stoke-city-crest.png"
@@ -64,11 +68,16 @@
         id="mainNavigation"
         aria-label="Main navigation"
       >
-        <a href="#" aria-current="page">Home</a>
-        <a href="#services">Services</a>
-        <a href="#news">News</a>
-        <a href="#quick-links">Quick Links</a>
-        <a href="#opportunities">Opportunities</a>
+        <a href="#top" aria-current="page">Home</a>
+        <a href="#quick-links">Useful Resources</a>
+        <a href="#departments">Departments</a>
+        <a
+          href="https://www.stokecityfc.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Club Site
+        </a>
       </nav>
     </div>
   </header>
@@ -83,11 +92,11 @@
 
           <p>
             Welcome to the Employee Hub — your starting point for club news,
-            people services, useful systems, documents and opportunities.
+            useful resources, people support and everyday staff information.
           </p>
 
           <div class="hero__actions">
-            <a class="button" href="#services">Find a service</a>
+            <a class="button" href="#quick-links">Useful resources</a>
             <a class="button button--light" href="#news">Read club news</a>
           </div>
         </div>
@@ -104,14 +113,14 @@
       <form class="search-panel" id="searchForm" role="search">
         <div>
           <label class="search-panel__label" for="hubSearch">
-            Find a service, document or system
+            Find a resource, document or system
           </label>
 
           <div class="search-panel__field">
             <input
               id="hubSearch"
               type="search"
-              placeholder="For example: payslips, annual leave or IT support"
+              placeholder="For example: benefits, annual leave or IT support"
             >
           </div>
         </div>
@@ -124,77 +133,49 @@
       <div class="container">
         <div class="notice">
           <span class="notice__tag">Staff notice</span>
+
           <p>
-            This is a prototype notice area for important staff updates,
-            planned works or time-sensitive information.
+            This area can be used for important club updates, planned works,
+            key dates or time-sensitive information.
           </p>
+
           <a href="#news">View updates</a>
         </div>
       </div>
     </section>
 
-    <section class="section" id="services">
-      <div class="container">
-        <span class="eyebrow">Key services</span>
-        <h2 class="section-heading">Support for every part of club life.</h2>
-
-        <div class="services-grid">
-          <a class="service-card" href="#">
-            <span class="service-card__number">01</span>
-            <h3>People &amp; HR</h3>
-            <p>Leave, benefits, wellbeing, policies and people support.</p>
-            <span class="service-card__link">Explore service →</span>
-          </a>
-
-          <a class="service-card" href="#">
-            <span class="service-card__number">02</span>
-            <h3>IT Support</h3>
-            <p>Systems, equipment, access requests and technical guidance.</p>
-            <span class="service-card__link">Get support →</span>
-          </a>
-
-          <a class="service-card" href="#">
-            <span class="service-card__number">03</span>
-            <h3>Finance</h3>
-            <p>Expenses, purchasing, payroll information and forms.</p>
-            <span class="service-card__link">Visit Finance →</span>
-          </a>
-
-          <a class="service-card" href="#">
-            <span class="service-card__number">04</span>
-            <h3>Facilities</h3>
-            <p>Building requests, parking, maintenance and matchday access.</p>
-            <span class="service-card__link">Request help →</span>
-          </a>
-        </div>
-      </div>
-    </section>
-
+    <!-- Club News appears above Quick Links -->
     <section class="section news-section" id="news">
       <div class="container">
         <span class="eyebrow">Latest from the club</span>
-        <h2 class="section-heading">Staff news and updates.</h2>
+        <h2 class="section-heading">Club news and staff updates.</h2>
 
         <div class="news-layout">
           <article class="featured-story">
             <div class="featured-story__image" aria-hidden="true">
-              <span>Featured staff update</span>
+              <span>Employee Hub</span>
             </div>
 
             <div class="featured-story__content">
               <span class="news-date">Employee Hub</span>
+
               <h3>Welcome to the new Stoke City Employee Hub prototype</h3>
+
               <p>
                 A central home for useful links, internal information,
                 club updates and future staff services.
               </p>
-              <a class="button" href="#">Read update</a>
+
+              <a class="button" href="#">
+                Read update
+              </a>
             </div>
           </article>
 
           <div class="news-list">
             <a class="news-list__item" href="#">
               <div class="news-list__image news-list__image--one"></div>
+
               <div class="news-list__content">
                 <span class="news-date">Club update</span>
                 <h3>Important dates and key information for colleagues</h3>
@@ -203,6 +184,7 @@
 
             <a class="news-list__item" href="#">
               <div class="news-list__image news-list__image--two"></div>
+
               <div class="news-list__content">
                 <span class="news-date">People team</span>
                 <h3>Wellbeing resources and support available to staff</h3>
@@ -211,6 +193,7 @@
 
             <a class="news-list__item" href="#">
               <div class="news-list__image news-list__image--three"></div>
+
               <div class="news-list__content">
                 <span class="news-date">Community</span>
                 <h3>Ways to get involved with upcoming club activity</h3>
@@ -220,40 +203,145 @@
         </div>
 
         <div class="news-footer">
-          <a class="button button--light" href="#">View all staff news</a>
+          <a class="button button--light" href="#">
+            View all club news
+          </a>
         </div>
       </div>
     </section>
 
-    <section class="section" id="quick-links">
+    <!-- Quick Links carousel -->
+    <section class="section quick-links-section" id="quick-links">
       <div class="container">
-        <span class="eyebrow">Useful links</span>
-        <h2 class="section-heading">Quick access to everyday tools.</h2>
+        <span class="eyebrow">Useful resources</span>
+        <h2 class="section-heading">Quick links for colleagues.</h2>
 
-        <div class="quick-links-grid">
-          <a class="quick-link" href="#">
-            Microsoft 365 <span>→</span>
+        <div class="quick-links-carousel">
+          <div class="carousel-controls">
+            <p class="carousel-help">
+              Scroll, swipe or use the arrows to explore staff resources.
+            </p>
+
+            <div class="carousel-buttons">
+              <button
+                class="carousel-button"
+                id="quickLinksPrevious"
+                type="button"
+                aria-label="Show previous quick links"
+              >
+                ←
+              </button>
+
+              <button
+                class="carousel-button"
+                id="quickLinksNext"
+                type="button"
+                aria-label="Show next quick links"
+              >
+                →
+              </button>
+            </div>
+          </div>
+
+          <div
+            class="quick-links-track"
+            id="quickLinksTrack"
+            aria-label="Quick links carousel"
+          >
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">01</span>
+              <h3>Employee Handbook</h3>
+              <p>Club guidance, policies and everyday staff information.</p>
+              <span class="resource-card__link">Open resource →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">02</span>
+              <h3>Benefits</h3>
+              <p>Explore colleague benefits and wellbeing support.</p>
+              <span class="resource-card__link">View benefits →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">03</span>
+              <h3>Brand Hub</h3>
+              <p>Approved club logos, guidance and brand resources.</p>
+              <span class="resource-card__link">Visit Brand Hub →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">04</span>
+              <h3>Learning Hub</h3>
+              <p>Training, development resources and learning support.</p>
+              <span class="resource-card__link">Start learning →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">05</span>
+              <h3>Club Policies</h3>
+              <p>Find current policies, procedures and useful forms.</p>
+              <span class="resource-card__link">View policies →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">06</span>
+              <h3>IT Support</h3>
+              <p>Request help with systems, equipment and access.</p>
+              <span class="resource-card__link">Get IT support →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">07</span>
+              <h3>Payroll &amp; Expenses</h3>
+              <p>Payslip, payroll and expense claim information.</p>
+              <span class="resource-card__link">Open Finance →</span>
+            </a>
+
+            <a class="resource-card" href="#">
+              <span class="resource-card__number">08</span>
+              <h3>Staff Directory</h3>
+              <p>Find contact details for colleagues and departments.</p>
+              <span class="resource-card__link">Find a colleague →</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section departments-section" id="departments">
+      <div class="container">
+        <span class="eyebrow">Departments</span>
+        <h2 class="section-heading">Support from across the club.</h2>
+
+        <div class="departments-grid">
+          <a class="department-card" href="#">
+            <span>01</span>
+            <h3>People &amp; HR</h3>
+            <p>People support, wellbeing, leave and policies.</p>
           </a>
-          <a class="quick-link" href="#">
-            Payslips and payroll <span>→</span>
+
+          <a class="department-card" href="#">
+            <span>02</span>
+            <h3>Finance</h3>
+            <p>Payroll, expenses, purchasing and forms.</p>
           </a>
-          <a class="quick-link" href="#">
-            Annual leave <span>→</span>
+
+          <a class="department-card" href="#">
+            <span>03</span>
+            <h3>IT &amp; Digital</h3>
+            <p>Systems, access requests and technical help.</p>
           </a>
-          <a class="quick-link" href="#">
-            Club policies <span>→</span>
-          </a>
-          <a class="quick-link" href="#">
-            Staff directory <span>→</span>
-          </a>
-          <a class="quick-link" href="#">
-            Report an issue <span>→</span>
+
+          <a class="department-card" href="#">
+            <span>04</span>
+            <h3>Facilities</h3>
+            <p>Building requests, maintenance and matchday access.</p>
           </a>
         </div>
       </div>
     </section>
 
-    <section class="opportunities" id="opportunities">
+    <section class="opportunities">
       <div class="container opportunities__inner">
         <div>
           <span class="eyebrow">Opportunities</span>
@@ -264,7 +352,9 @@
           </p>
         </div>
 
-        <a class="button button--light" href="#">View opportunities</a>
+        <a class="button button--light" href="#">
+          View opportunities
+        </a>
       </div>
     </section>
   </main>
@@ -276,6 +366,7 @@
           src="stoke-city-crest-white.png"
           alt="Stoke City Football Club crest"
         >
+
         <div>
           <strong>Stoke City FC</strong>
           <span>Employee Hub</span>
@@ -284,16 +375,18 @@
 
       <div>
         <h2 class="footer-heading">Employee Hub</h2>
+
         <div class="footer-links">
-          <a href="#services">Key services</a>
-          <a href="#news">Staff news</a>
-          <a href="#quick-links">Quick links</a>
-          <a href="#opportunities">Opportunities</a>
+          <a href="#news">Club news</a>
+          <a href="#quick-links">Useful resources</a>
+          <a href="#departments">Departments</a>
+          <a href="#">Opportunities</a>
         </div>
       </div>
 
       <div>
         <h2 class="footer-heading">Need help?</h2>
+
         <div class="footer-links">
           <a href="#">Contact People &amp; HR</a>
           <a href="#">Contact IT Support</a>
