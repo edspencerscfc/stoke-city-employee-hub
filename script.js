@@ -1,17 +1,15 @@
 const menuButton = document.getElementById("menuButton");
 const mainNavigation = document.getElementById("mainNavigation");
-const searchForm = document.getElementById("searchForm");
-const hubSearch = document.getElementById("hubSearch");
 
 if (menuButton && mainNavigation) {
   menuButton.addEventListener("click", () => {
     const isOpen = mainNavigation.classList.toggle("is-open");
 
-    menuButton.setAttribute("aria-expanded", isOpen);
+    menuButton.setAttribute("aria-expanded", String(isOpen));
     menuButton.textContent = isOpen ? "Close" : "Menu";
   });
 
-  document.querySelectorAll(".main-nav a").forEach((link) => {
+  mainNavigation.querySelectorAll("a").forEach((link) => {
     link.addEventListener("click", () => {
       mainNavigation.classList.remove("is-open");
       menuButton.setAttribute("aria-expanded", "false");
@@ -20,102 +18,127 @@ if (menuButton && mainNavigation) {
   });
 }
 
-if (searchForm && hubSearch) {
+/* Resource carousel */
+
+const resourceTrack = document.getElementById("resourceTrack");
+const resourcesPrevious = document.getElementById("resourcesPrevious");
+const resourcesNext = document.getElementById("resourcesNext");
+
+if (resourceTrack && resourcesPrevious && resourcesNext) {
+  const reducedMotion = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  const getCardWidth = () => {
+    const card = resourceTrack.querySelector(".resource-card");
+
+    return card ? card.offsetWidth + 16 : 300;
+  };
+
+  const moveResources = (direction) => {
+    resourceTrack.scrollBy({
+      left: getCardWidth() * direction,
+      behavior: "smooth"
+    });
+  };
+
+  resourcesNext.addEventListener("click", () => {
+    const atEnd =
+      resourceTrack.scrollLeft + resourceTrack.clientWidth >=
+      resourceTrack.scrollWidth - 10;
+
+    if (atEnd) {
+      resourceTrack.scrollTo({
+        left: 0,
+        behavior: "smooth"
+      });
+    } else {
+      moveResources(1);
+    }
+  });
+
+  resourcesPrevious.addEventListener("click", () => {
+    const atStart = resourceTrack.scrollLeft <= 10;
+
+    if (atStart) {
+      resourceTrack.scrollTo({
+        left: resourceTrack.scrollWidth,
+        behavior: "smooth"
+      });
+    } else {
+      moveResources(-1);
+    }
+  });
+
+  let carouselTimer;
+
+  const stopRotation = () => {
+    window.clearInterval(carouselTimer);
+  };
+
+  const startRotation = () => {
+    if (reducedMotion) {
+      return;
+    }
+
+    stopRotation();
+
+    carouselTimer = window.setInterval(() => {
+      resourcesNext.click();
+    }, 6000);
+  };
+
+  resourceTrack.addEventListener("mouseenter", stopRotation);
+  resourceTrack.addEventListener("mouseleave", startRotation);
+  resourceTrack.addEventListener("focusin", stopRotation);
+  resourceTrack.addEventListener("focusout", startRotation);
+
+  startRotation();
+}
+
+/* Resource search */
+
+const searchForm = document.getElementById("searchForm");
+const hubSearch = document.getElementById("hubSearch");
+
+if (searchForm && hubSearch && resourceTrack) {
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const searchTerm = hubSearch.value.trim();
+    const searchTerm = hubSearch.value.trim().toLowerCase();
 
     if (!searchTerm) {
       hubSearch.focus();
       return;
     }
 
-    alert(
-      `Search for "${searchTerm}" would connect to the Employee Hub search in the permanent version.`
-    );
-  });
-}
+    const cards = [...resourceTrack.querySelectorAll(".resource-card")];
 
-/* Quick Links carousel */
+    const match = cards.find((card) => {
+      const searchableText =
+        `${card.textContent} ${card.dataset.resource}`.toLowerCase();
 
-const quickLinksTrack = document.getElementById("quickLinksTrack");
-const quickLinksPrevious = document.getElementById("quickLinksPrevious");
-const quickLinksNext = document.getElementById("quickLinksNext");
-
-if (quickLinksTrack && quickLinksPrevious && quickLinksNext) {
-  const prefersReducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
-
-  const getScrollAmount = () => {
-    const firstCard = quickLinksTrack.querySelector(".resource-card");
-
-    if (!firstCard) {
-      return 300;
-    }
-
-    return firstCard.offsetWidth + 16;
-  };
-
-  const moveCarousel = (direction) => {
-    quickLinksTrack.scrollBy({
-      left: getScrollAmount() * direction,
-      behavior: "smooth"
+      return searchableText.includes(searchTerm);
     });
-  };
 
-  quickLinksNext.addEventListener("click", () => {
-    const nearEnd =
-      quickLinksTrack.scrollLeft + quickLinksTrack.clientWidth >=
-      quickLinksTrack.scrollWidth - 10;
-
-    if (nearEnd) {
-      quickLinksTrack.scrollTo({
-        left: 0,
-        behavior: "smooth"
+    if (match) {
+      document.getElementById("resources").scrollIntoView({
+        behavior: "smooth",
+        block: "start"
       });
+
+      window.setTimeout(() => {
+        resourceTrack.scrollTo({
+          left: match.offsetLeft - resourceTrack.offsetLeft,
+          behavior: "smooth"
+        });
+
+        match.focus({ preventScroll: true });
+      }, 500);
     } else {
-      moveCarousel(1);
+      alert(
+        `No matching resource was found for "${hubSearch.value}". Please try handbook, benefits, brand, learning, IT, payroll or directory.`
+      );
     }
   });
-
-  quickLinksPrevious.addEventListener("click", () => {
-    const nearStart = quickLinksTrack.scrollLeft <= 10;
-
-    if (nearStart) {
-      quickLinksTrack.scrollTo({
-        left: quickLinksTrack.scrollWidth,
-        behavior: "smooth"
-      });
-    } else {
-      moveCarousel(-1);
-    }
-  });
-
-  let carouselTimer;
-
-  const startCarouselRotation = () => {
-    if (prefersReducedMotion) {
-      return;
-    }
-
-    stopCarouselRotation();
-
-    carouselTimer = window.setInterval(() => {
-      quickLinksNext.click();
-    }, 5000);
-  };
-
-  const stopCarouselRotation = () => {
-    window.clearInterval(carouselTimer);
-  };
-
-  quickLinksTrack.addEventListener("mouseenter", stopCarouselRotation);
-  quickLinksTrack.addEventListener("mouseleave", startCarouselRotation);
-
-  quickLinksTrack.addEventListener("focusin", stopCarouselRotation);
-  quickLinksTrack.addEventListener("focusout", startCarouselRotation);
-
-  startCarouselRotation();
 }
