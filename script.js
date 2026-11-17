@@ -1,206 +1,487 @@
+"use strict";
+
+/* =========================================================
+   ELEMENT REFERENCES
+   ========================================================= */
+
 const menuButton = document.getElementById("menuButton");
+const menuButtonLabel = menuButton?.querySelector(".menu-button__label");
 const mainNavigation = document.getElementById("mainNavigation");
+
 const searchForm = document.getElementById("searchForm");
 const hubSearch = document.getElementById("hubSearch");
+const searchStatus = document.getElementById("searchStatus");
 
-if (menuButton && mainNavigation) {
-  menuButton.addEventListener("click", () => {
-    const isOpen = mainNavigation.classList.toggle("is-open");
+const quickLinksTrack = document.getElementById("quickLinksTrack");
+const quickLinksPrevious = document.getElementById(
+  "quickLinksPrevious"
+);
+const quickLinksNext = document.getElementById("quickLinksNext");
 
-    menuButton.setAttribute("aria-expanded", isOpen);
-    menuButton.setAttribute("aria-expanded", String(isOpen));
-    menuButton.textContent = isOpen ? "Close" : "Menu";
-  });
+const prototypeToast = document.getElementById("prototypeToast");
+const prototypeToastMessage = document.getElementById(
+  "prototypeToastMessage"
+);
+const closePrototypeToast = document.getElementById(
+  "closePrototypeToast"
+);
 
-  document.querySelectorAll(".main-nav a").forEach((link) => {
-  mainNavigation.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      mainNavigation.classList.remove("is-open");
-      menuButton.setAttribute("aria-expanded", "false");
-@@ -20,102 +18,127 @@ if (menuButton && mainNavigation) {
-  });
+const currentYear = document.getElementById("currentYear");
+
+let toastTimer = null;
+
+/* =========================================================
+   MOBILE NAVIGATION
+   ========================================================= */
+
+function isMobileNavigation() {
+  return window.matchMedia("(max-width: 740px)").matches;
 }
 
-if (searchForm && hubSearch) {
-  searchForm.addEventListener("submit", (event) => {
-    event.preventDefault();
+function openMenu() {
+  if (!menuButton || !mainNavigation) {
+    return;
+  }
 
-    const searchTerm = hubSearch.value.trim();
+  mainNavigation.classList.add("is-open");
+  menuButton.setAttribute("aria-expanded", "true");
+  document.body.classList.add("menu-open");
 
-    if (!searchTerm) {
-      hubSearch.focus();
+  if (menuButtonLabel) {
+    menuButtonLabel.textContent = "Close";
+  }
+}
+
+function closeMenu(options = {}) {
+  const { returnFocus = false } = options;
+
+  if (!menuButton || !mainNavigation) {
+    return;
+  }
+
+  mainNavigation.classList.remove("is-open");
+  menuButton.setAttribute("aria-expanded", "false");
+  document.body.classList.remove("menu-open");
+
+  if (menuButtonLabel) {
+    menuButtonLabel.textContent = "Menu";
+  }
+
+  if (returnFocus) {
+    menuButton.focus();
+  }
+}
+
+function toggleMenu() {
+  if (!menuButton || !mainNavigation) {
+    return;
+  }
+
+  const isOpen =
+    menuButton.getAttribute("aria-expanded") === "true";
+
+  if (isOpen) {
+    closeMenu();
+  } else {
+    openMenu();
+  }
+}
+
+if (menuButton && mainNavigation) {
+  menuButton.addEventListener("click", toggleMenu);
+
+  mainNavigation.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      if (isMobileNavigation()) {
+        closeMenu();
+      }
+    });
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (
+      event.key === "Escape" &&
+      menuButton.getAttribute("aria-expanded") === "true"
+    ) {
+      closeMenu({ returnFocus: true });
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    if (!isMobileNavigation()) {
       return;
     }
 
-    alert(
-      `Search for "${searchTerm}" would connect to the Employee Hub search in the permanent version.`
+    const menuIsOpen =
+      menuButton.getAttribute("aria-expanded") === "true";
+
+    if (!menuIsOpen) {
+      return;
+    }
+
+    const clickWasInsideMenu = mainNavigation.contains(event.target);
+    const clickWasOnButton = menuButton.contains(event.target);
+
+    if (!clickWasInsideMenu && !clickWasOnButton) {
+      closeMenu();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (!isMobileNavigation()) {
+      closeMenu();
+    }
+  });
+}
+
+/* =========================================================
+   PROTOTYPE LINK MESSAGE
+   ========================================================= */
+
+function hidePrototypeMessage() {
+  if (!prototypeToast) {
+    return;
+  }
+
+  prototypeToast.hidden = true;
+
+  if (toastTimer) {
+    window.clearTimeout(toastTimer);
+    toastTimer = null;
+  }
+}
+
+function showPrototypeMessage(message) {
+  if (!prototypeToast || !prototypeToastMessage) {
+    return;
+  }
+
+  const fallbackMessage =
+    "This destination has not yet been connected.";
+
+  prototypeToastMessage.textContent = message || fallbackMessage;
+  prototypeToast.hidden = false;
+
+  if (toastTimer) {
+    window.clearTimeout(toastTimer);
+  }
+
+  toastTimer = window.setTimeout(() => {
+    hidePrototypeMessage();
+  }, 7000);
+}
+
+document.querySelectorAll(".prototype-link").forEach((link) => {
+  link.addEventListener("click", (event) => {
+    const href = link.getAttribute("href");
+
+    if (href === "#" || !href) {
+      event.preventDefault();
+
+      showPrototypeMessage(
+        link.dataset.prototypeMessage ||
+          "This destination has not yet been connected."
+      );
+    }
+  });
+});
+
+if (closePrototypeToast) {
+  closePrototypeToast.addEventListener("click", hidePrototypeMessage);
+}
+
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Escape" &&
+    prototypeToast &&
+    !prototypeToast.hidden
+  ) {
+    hidePrototypeMessage();
+  }
+});
+
+/* =========================================================
+   RESOURCE CAROUSEL
+   Manual controls only. No automatic rotation.
+   ========================================================= */
+
+function getResourceCards() {
+  if (!quickLinksTrack) {
+    return [];
+  }
+
+  return Array.from(
+    quickLinksTrack.querySelectorAll(".resource-card")
+  );
+}
+
+function getResourceScrollDistance() {
+  const firstCard = getResourceCards()[0];
+
+  if (!firstCard || !quickLinksTrack) {
+    return 320;
+  }
+
+  const trackStyles = window.getComputedStyle(quickLinksTrack);
+  const gap = Number.parseFloat(trackStyles.columnGap) || 16;
+
+  return firstCard.getBoundingClientRect().width + gap;
+}
+
+function scrollResources(direction) {
+  if (!quickLinksTrack) {
+    return;
+  }
+
+  const distance = getResourceScrollDistance() * direction;
+
+  quickLinksTrack.scrollBy({
+    left: distance,
+    behavior: "smooth"
+  });
+}
+
+function updateResourceControls() {
+  if (
+    !quickLinksTrack ||
+    !quickLinksPrevious ||
+    !quickLinksNext
+  ) {
+    return;
+  }
+
+  const maxScrollLeft =
+    quickLinksTrack.scrollWidth - quickLinksTrack.clientWidth;
+
+  const isAtStart = quickLinksTrack.scrollLeft <= 4;
+  const isAtEnd =
+    quickLinksTrack.scrollLeft >= maxScrollLeft - 4;
+
+  quickLinksPrevious.disabled = isAtStart;
+  quickLinksNext.disabled = isAtEnd || maxScrollLeft <= 4;
+}
+
+if (
+  quickLinksTrack &&
+  quickLinksPrevious &&
+  quickLinksNext
+) {
+  quickLinksPrevious.addEventListener("click", () => {
+    scrollResources(-1);
+  });
+
+  quickLinksNext.addEventListener("click", () => {
+    scrollResources(1);
+  });
+
+  quickLinksTrack.addEventListener(
+    "scroll",
+    updateResourceControls,
+    { passive: true }
+  );
+
+  quickLinksTrack.addEventListener("keydown", (event) => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      scrollResources(1);
+    }
+
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      scrollResources(-1);
+    }
+
+    if (event.key === "Home") {
+      event.preventDefault();
+
+      quickLinksTrack.scrollTo({
+        left: 0,
+        behavior: "smooth"
+      });
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+
+      quickLinksTrack.scrollTo({
+        left: quickLinksTrack.scrollWidth,
+        behavior: "smooth"
+      });
+    }
+  });
+
+  window.addEventListener("resize", updateResourceControls);
+
+  updateResourceControls();
+}
+
+/* =========================================================
+   RESOURCE SEARCH
+   ========================================================= */
+
+function clearSearchHighlights() {
+  getResourceCards().forEach((card) => {
+    card.classList.remove("is-search-match");
+  });
+}
+
+function normaliseSearchText(value) {
+  return value
+    .toLowerCase()
+    .replace(/&/g, "and")
+    .replace(/[^\p{L}\p{N}\s]/gu, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function getCardSearchText(card) {
+  const visibleText = card.textContent || "";
+  const keywords = card.dataset.resource || "";
+
+  return normaliseSearchText(`${visibleText} ${keywords}`);
+}
+
+function findResourceMatches(searchTerm) {
+  const normalisedTerm = normaliseSearchText(searchTerm);
+
+  if (!normalisedTerm) {
+    return [];
+  }
+
+  const searchWords = normalisedTerm
+    .split(" ")
+    .filter((word) => word.length > 0);
+
+  return getResourceCards().filter((card) => {
+    const searchableText = getCardSearchText(card);
+
+    return searchWords.every((word) =>
+      searchableText.includes(word)
     );
   });
 }
 
-/* Quick Links carousel */
-/* Resource carousel */
+function showSearchResult(matches, originalSearchTerm) {
+  if (!searchStatus) {
+    return;
+  }
 
-const quickLinksTrack = document.getElementById("quickLinksTrack");
-const quickLinksPrevious = document.getElementById("quickLinksPrevious");
-const quickLinksNext = document.getElementById("quickLinksNext");
-const resourceTrack = document.getElementById("resourceTrack");
-const resourcesPrevious = document.getElementById("resourcesPrevious");
-const resourcesNext = document.getElementById("resourcesNext");
+  searchStatus.classList.remove("is-error");
 
-if (quickLinksTrack && quickLinksPrevious && quickLinksNext) {
-  const prefersReducedMotion = window.matchMedia(
-if (resourceTrack && resourcesPrevious && resourcesNext) {
-  const reducedMotion = window.matchMedia(
-    "(prefers-reduced-motion: reduce)"
-  ).matches;
+  if (matches.length === 1) {
+    searchStatus.textContent =
+      `1 resource found for “${originalSearchTerm}”.`;
+    return;
+  }
 
-  const getScrollAmount = () => {
-    const firstCard = quickLinksTrack.querySelector(".resource-card");
-  const getCardWidth = () => {
-    const card = resourceTrack.querySelector(".resource-card");
-
-    if (!firstCard) {
-      return 300;
-    }
-
-    return firstCard.offsetWidth + 16;
-    return card ? card.offsetWidth + 16 : 300;
-  };
-
-  const moveCarousel = (direction) => {
-    quickLinksTrack.scrollBy({
-      left: getScrollAmount() * direction,
-  const moveResources = (direction) => {
-    resourceTrack.scrollBy({
-      left: getCardWidth() * direction,
-      behavior: "smooth"
-    });
-  };
-
-  quickLinksNext.addEventListener("click", () => {
-    const nearEnd =
-      quickLinksTrack.scrollLeft + quickLinksTrack.clientWidth >=
-      quickLinksTrack.scrollWidth - 10;
-  resourcesNext.addEventListener("click", () => {
-    const atEnd =
-      resourceTrack.scrollLeft + resourceTrack.clientWidth >=
-      resourceTrack.scrollWidth - 10;
-
-    if (nearEnd) {
-      quickLinksTrack.scrollTo({
-    if (atEnd) {
-      resourceTrack.scrollTo({
-        left: 0,
-        behavior: "smooth"
-      });
-    } else {
-      moveCarousel(1);
-      moveResources(1);
-    }
-  });
-
-  quickLinksPrevious.addEventListener("click", () => {
-    const nearStart = quickLinksTrack.scrollLeft <= 10;
-  resourcesPrevious.addEventListener("click", () => {
-    const atStart = resourceTrack.scrollLeft <= 10;
-
-    if (nearStart) {
-      quickLinksTrack.scrollTo({
-        left: quickLinksTrack.scrollWidth,
-    if (atStart) {
-      resourceTrack.scrollTo({
-        left: resourceTrack.scrollWidth,
-        behavior: "smooth"
-      });
-    } else {
-      moveCarousel(-1);
-      moveResources(-1);
-    }
-  });
-
-  let carouselTimer;
-
-  const startCarouselRotation = () => {
-    if (prefersReducedMotion) {
-  const stopRotation = () => {
-    window.clearInterval(carouselTimer);
-  };
-
-  const startRotation = () => {
-    if (reducedMotion) {
-      return;
-    }
-
-    stopCarouselRotation();
-    stopRotation();
-
-    carouselTimer = window.setInterval(() => {
-      quickLinksNext.click();
-    }, 5000);
-      resourcesNext.click();
-    }, 6000);
-  };
-
-  const stopCarouselRotation = () => {
-    window.clearInterval(carouselTimer);
-  };
-  resourceTrack.addEventListener("mouseenter", stopRotation);
-  resourceTrack.addEventListener("mouseleave", startRotation);
-  resourceTrack.addEventListener("focusin", stopRotation);
-  resourceTrack.addEventListener("focusout", startRotation);
-
-  startRotation();
+  searchStatus.textContent =
+    `${matches.length} resources found for ` +
+    `“${originalSearchTerm}”. The first result is highlighted.`;
 }
 
-/* Resource search */
+function showNoSearchResult(originalSearchTerm) {
+  if (!searchStatus) {
+    return;
+  }
 
-const searchForm = document.getElementById("searchForm");
-const hubSearch = document.getElementById("hubSearch");
+  searchStatus.classList.add("is-error");
+  searchStatus.textContent =
+    `No resources were found for “${originalSearchTerm}”. ` +
+    "Try handbook, benefits, brand, learning, policies, IT, " +
+    "payroll or directory.";
+}
 
-if (searchForm && hubSearch && resourceTrack) {
+function focusFirstSearchMatch(matches) {
+  const firstMatch = matches[0];
+
+  if (!firstMatch || !quickLinksTrack) {
+    return;
+  }
+
+  matches.forEach((card) => {
+    card.classList.add("is-search-match");
+  });
+
+  const trackLeft =
+    quickLinksTrack.getBoundingClientRect().left;
+  const cardLeft = firstMatch.getBoundingClientRect().left;
+  const destination =
+    quickLinksTrack.scrollLeft + cardLeft - trackLeft - 4;
+
+  quickLinksTrack.scrollTo({
+    left: destination,
+    behavior: "smooth"
+  });
+
+  document
+    .getElementById("quick-links")
+    ?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+  window.setTimeout(() => {
+    firstMatch.focus({
+      preventScroll: true
+    });
+  }, 450);
+}
+
+if (searchForm && hubSearch && quickLinksTrack) {
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
 
-    const searchTerm = hubSearch.value.trim().toLowerCase();
+    clearSearchHighlights();
 
-    if (!searchTerm) {
+    const originalSearchTerm = hubSearch.value.trim();
+
+    if (!originalSearchTerm) {
+      if (searchStatus) {
+        searchStatus.classList.add("is-error");
+        searchStatus.textContent =
+          "Enter a word or phrase to search the quick links.";
+      }
+
       hubSearch.focus();
       return;
     }
 
-  quickLinksTrack.addEventListener("mouseenter", stopCarouselRotation);
-  quickLinksTrack.addEventListener("mouseleave", startCarouselRotation);
-    const cards = [...resourceTrack.querySelectorAll(".resource-card")];
+    const matches = findResourceMatches(originalSearchTerm);
 
-  quickLinksTrack.addEventListener("focusin", stopCarouselRotation);
-  quickLinksTrack.addEventListener("focusout", startCarouselRotation);
-    const match = cards.find((card) => {
-      const searchableText =
-        `${card.textContent} ${card.dataset.resource}`.toLowerCase();
+    if (matches.length === 0) {
+      showNoSearchResult(originalSearchTerm);
+      return;
+    }
 
-  startCarouselRotation();
-      return searchableText.includes(searchTerm);
-    });
+    showSearchResult(matches, originalSearchTerm);
+    focusFirstSearchMatch(matches);
+  });
 
-    if (match) {
-      document.getElementById("resources").scrollIntoView({
-        behavior: "smooth",
-        block: "start"
-      });
+  hubSearch.addEventListener("input", () => {
+    clearSearchHighlights();
 
-      window.setTimeout(() => {
-        resourceTrack.scrollTo({
-          left: match.offsetLeft - resourceTrack.offsetLeft,
-          behavior: "smooth"
-        });
-
-        match.focus({ preventScroll: true });
-      }, 500);
-    } else {
-      alert(
-        `No matching resource was found for "${hubSearch.value}". Please try handbook, benefits, brand, learning, IT, payroll or directory.`
-      );
+    if (searchStatus) {
+      searchStatus.textContent = "";
+      searchStatus.classList.remove("is-error");
     }
   });
+
+  hubSearch.addEventListener("search", () => {
+    if (!hubSearch.value) {
+      clearSearchHighlights();
+
+      if (searchStatus) {
+        searchStatus.textContent = "";
+        searchStatus.classList.remove("is-error");
+      }
+    }
+  });
+}
+
+/* =========================================================
+   FOOTER YEAR
+   ========================================================= */
+
+if (currentYear) {
+  currentYear.textContent = String(new Date().getFullYear());
 }
