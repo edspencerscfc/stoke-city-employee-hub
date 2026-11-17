@@ -489,7 +489,7 @@ function startResourceAutoplay() {
 
   resourceTimer = window.setInterval(
     moveToNextResource,
-    5000
+    2000
   );
 }
 
