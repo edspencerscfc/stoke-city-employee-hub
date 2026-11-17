@@ -42,17 +42,25 @@ const tickerItems = [
   }
 ];
 
-const select = (selector) => document.querySelector(selector);
+/* =========================================================
+   HELPERS
+   ========================================================= */
 
-const selectAll = (selector) => [
-  ...document.querySelectorAll(selector)
-];
+const select = (selector) => {
+  return document.querySelector(selector);
+};
+
+const selectAll = (selector) => {
+  return [...document.querySelectorAll(selector)];
+};
 
 const reducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)"
 );
 
-/* Mobile menu */
+/* =========================================================
+   MOBILE NAVIGATION
+   ========================================================= */
 
 const menuButton = select("#menuButton");
 const mainNavigation = select("#mainNavigation");
@@ -72,8 +80,9 @@ function closeMenu(returnFocus = false) {
 }
 
 menuButton?.addEventListener("click", () => {
-  const isOpen =
-    mainNavigation.classList.toggle("is-open");
+  const isOpen = mainNavigation.classList.toggle(
+    "is-open"
+  );
 
   menuButton.setAttribute(
     "aria-expanded",
@@ -86,11 +95,14 @@ menuButton?.addEventListener("click", () => {
   );
 });
 
-mainNavigation?.addEventListener("click", (event) => {
-  if (event.target.tagName === "A") {
-    closeMenu();
+mainNavigation?.addEventListener(
+  "click",
+  (event) => {
+    if (event.target.tagName === "A") {
+      closeMenu();
+    }
   }
-});
+);
 
 document.addEventListener("keydown", (event) => {
   if (event.key === "Escape") {
@@ -98,10 +110,14 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-/* =========================================================
-   CORRECTED STAFF TICKER
+window.addEventListener("resize", () => {
+  if (window.innerWidth > 740) {
+    closeMenu();
+  }
+});
 
-   Every class created here exactly matches style.css.
+/* =========================================================
+   STAFF TICKER
    ========================================================= */
 
 const staffTicker = select(".staff-ticker");
@@ -169,18 +185,13 @@ function renderTicker() {
   );
 
   window.requestAnimationFrame(() => {
-    const firstGroup =
-      tickerTrack.querySelector(
-        ".staff-ticker__group"
-      );
+    const firstGroup = tickerTrack.querySelector(
+      ".staff-ticker__group"
+    );
 
     if (!firstGroup) {
       return;
     }
-
-    /*
-      Approximately 75 pixels per second.
-    */
 
     const duration = Math.max(
       firstGroup.scrollWidth / 75,
@@ -204,8 +215,9 @@ function setTickerPaused(isPaused) {
     isPaused
   );
 
-  tickerButton.textContent =
-    isPaused ? "Play" : "Pause";
+  tickerButton.textContent = isPaused
+    ? "Play"
+    : "Pause";
 
   tickerButton.setAttribute(
     "aria-pressed",
@@ -223,8 +235,9 @@ function setTickerPaused(isPaused) {
 renderTicker();
 
 tickerButton?.addEventListener("click", () => {
-  const isPaused =
-    staffTicker.classList.contains("is-paused");
+  const isPaused = staffTicker.classList.contains(
+    "is-paused"
+  );
 
   setTickerPaused(!isPaused);
 });
@@ -237,9 +250,12 @@ if (reducedMotion.matches) {
   }
 }
 
-/* Prototype links */
+/* =========================================================
+   PROTOTYPE LINKS
+   ========================================================= */
 
 const prototypeToast = select("#prototypeToast");
+
 const closePrototypeToast = select(
   "#closePrototypeToast"
 );
@@ -281,24 +297,42 @@ closePrototypeToast?.addEventListener(
   hidePrototypeMessage
 );
 
-/* Resource carousel */
+/* =========================================================
+   RESOURCE CAROUSEL
+   ========================================================= */
 
 const resourceTrack = select("#resourceTrack");
 const resourceCards = selectAll(".resource-card");
-const previousButton = select("#resourcePrevious");
-const nextButton = select("#resourceNext");
-const counter = select("#resourceCounter");
-const autoplayButton = select("#resourceAutoplay");
+
+const previousButton = select(
+  "#resourcePrevious"
+);
+
+const nextButton = select(
+  "#resourceNext"
+);
+
+const resourceCounter = select(
+  "#resourceCounter"
+);
+
+const autoplayButton = select(
+  "#resourceAutoplay"
+);
 
 let resourceTimer;
 let manualPause = false;
 let interactionPause = false;
 
 function cardDistance() {
+  const firstCard = resourceCards[0];
+
+  if (!firstCard) {
+    return 328;
+  }
+
   return (
-    resourceCards[0]
-      ?.getBoundingClientRect()
-      .width + 18 || 328
+    firstCard.getBoundingClientRect().width + 18
   );
 }
 
@@ -320,7 +354,7 @@ function currentCardIndex() {
 }
 
 function updateCounter() {
-  if (!counter) {
+  if (!resourceCounter) {
     return;
   }
 
@@ -332,7 +366,8 @@ function updateCounter() {
     resourceCards.length
   ).padStart(2, "0");
 
-  counter.textContent = `${current} / ${total}`;
+  resourceCounter.textContent =
+    `${current} / ${total}`;
 }
 
 function moveResources(direction) {
@@ -351,7 +386,10 @@ function moveNext() {
     resourceTrack.scrollWidth -
     resourceTrack.clientWidth;
 
-  if (resourceTrack.scrollLeft >= maximum - 8) {
+  if (
+    resourceTrack.scrollLeft >=
+    maximum - 8
+  ) {
     resourceTrack.scrollTo({
       left: 0,
       behavior: "smooth"
@@ -384,15 +422,21 @@ function startAutoplay() {
   );
 }
 
-previousButton?.addEventListener("click", () => {
-  moveResources(-1);
-  startAutoplay();
-});
+previousButton?.addEventListener(
+  "click",
+  () => {
+    moveResources(-1);
+    startAutoplay();
+  }
+);
 
-nextButton?.addEventListener("click", () => {
-  moveNext();
-  startAutoplay();
-});
+nextButton?.addEventListener(
+  "click",
+  () => {
+    moveNext();
+    startAutoplay();
+  }
+);
 
 resourceTrack?.addEventListener(
   "scroll",
@@ -438,24 +482,60 @@ resourceTrack?.addEventListener(
   }
 );
 
-autoplayButton?.addEventListener("click", () => {
-  manualPause = !manualPause;
+resourceTrack?.addEventListener(
+  "keydown",
+  (event) => {
+    if (event.key === "ArrowRight") {
+      event.preventDefault();
+      moveResources(1);
+    }
 
-  autoplayButton.textContent = manualPause
-    ? "Resume automatic movement"
-    : "Pause automatic movement";
+    if (event.key === "ArrowLeft") {
+      event.preventDefault();
+      moveResources(-1);
+    }
 
-  autoplayButton.setAttribute(
-    "aria-pressed",
-    String(manualPause)
-  );
+    if (event.key === "Home") {
+      event.preventDefault();
 
-  if (manualPause) {
-    stopAutoplay();
-  } else {
-    startAutoplay();
+      resourceTrack.scrollTo({
+        left: 0,
+        behavior: "smooth"
+      });
+    }
+
+    if (event.key === "End") {
+      event.preventDefault();
+
+      resourceTrack.scrollTo({
+        left: resourceTrack.scrollWidth,
+        behavior: "smooth"
+      });
+    }
   }
-});
+);
+
+autoplayButton?.addEventListener(
+  "click",
+  () => {
+    manualPause = !manualPause;
+
+    autoplayButton.textContent = manualPause
+      ? "Resume automatic movement"
+      : "Pause automatic movement";
+
+    autoplayButton.setAttribute(
+      "aria-pressed",
+      String(manualPause)
+    );
+
+    if (manualPause) {
+      stopAutoplay();
+    } else {
+      startAutoplay();
+    }
+  }
+);
 
 if (reducedMotion.matches && autoplayButton) {
   autoplayButton.hidden = true;
@@ -464,7 +544,9 @@ if (reducedMotion.matches && autoplayButton) {
 updateCounter();
 startAutoplay();
 
-/* Resource search */
+/* =========================================================
+   RESOURCE SEARCH
+   ========================================================= */
 
 const searchForm = select("#searchForm");
 const searchInput = select("#searchInput");
@@ -485,78 +567,88 @@ function clearMatches() {
   });
 }
 
-searchForm?.addEventListener("submit", (event) => {
-  event.preventDefault();
-  clearMatches();
+searchForm?.addEventListener(
+  "submit",
+  (event) => {
+    event.preventDefault();
+    clearMatches();
 
-  const query = searchInput.value.trim();
+    const query = searchInput.value.trim();
 
-  if (!query) {
-    searchStatus.textContent =
-      "Enter a word or phrase.";
+    if (!query) {
+      searchStatus.textContent =
+        "Enter a word or phrase.";
 
-    searchInput.focus();
-    return;
-  }
+      searchInput.focus();
+      return;
+    }
 
-  const words = normalise(query)
-    .split(" ")
-    .filter(Boolean);
+    const words = normalise(query)
+      .split(" ")
+      .filter(Boolean);
 
-  const matches = resourceCards.filter((card) => {
-    const cardText = normalise(
-      `${card.textContent} ${card.dataset.keywords || ""}`
+    const matches = resourceCards.filter(
+      (card) => {
+        const cardText = normalise(
+          `${card.textContent} ` +
+          `${card.dataset.keywords || ""}`
+        );
+
+        return words.every((word) => {
+          return cardText.includes(word);
+        });
+      }
     );
 
-    return words.every((word) => {
-      return cardText.includes(word);
-    });
-  });
+    if (matches.length === 0) {
+      searchStatus.textContent =
+        `No resources found for “${query}”.`;
 
-  if (matches.length === 0) {
+      return;
+    }
+
     searchStatus.textContent =
-      `No resources found for “${query}”.`;
+      `${matches.length} resource` +
+      `${matches.length === 1 ? "" : "s"} found.`;
 
-    return;
-  }
-
-  searchStatus.textContent =
-    `${matches.length} resource` +
-    `${matches.length === 1 ? "" : "s"} found.`;
-
-  matches.forEach((card) => {
-    card.classList.add("is-match");
-  });
-
-  resourceTrack.scrollTo({
-    left:
-      matches[0].offsetLeft -
-      resourceTrack.offsetLeft,
-    behavior: "smooth"
-  });
-
-  select("#resources")?.scrollIntoView({
-    behavior: "smooth",
-    block: "start"
-  });
-
-  window.setTimeout(() => {
-    matches[0].focus({
-      preventScroll: true
+    matches.forEach((card) => {
+      card.classList.add("is-match");
     });
-  }, 400);
-});
 
-searchInput?.addEventListener("input", () => {
-  clearMatches();
-  searchStatus.textContent = "";
-});
+    resourceTrack.scrollTo({
+      left:
+        matches[0].offsetLeft -
+        resourceTrack.offsetLeft,
+      behavior: "smooth"
+    });
+
+    select("#resources")?.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+
+    window.setTimeout(() => {
+      matches[0].focus({
+        preventScroll: true
+      });
+    }, 400);
+  }
+);
+
+searchInput?.addEventListener(
+  "input",
+  () => {
+    clearMatches();
+    searchStatus.textContent = "";
+  }
+);
 
 /* Footer year */
 
 const currentYear = select("#currentYear");
 
 if (currentYear) {
-  currentYear.textContent =
-    new Date().getFullYear();
+  currentYear.textContent = String(
+    new Date().getFullYear()
+  );
 }
