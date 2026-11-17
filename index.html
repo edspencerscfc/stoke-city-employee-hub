@@ -10,19 +10,15 @@
 
   <meta
     name="description"
-    content="The Stoke City FC Employee Hub prototype, providing club news, useful resources, department information and staff support."
+    content="The Stoke City FC Employee Hub prototype, providing staff news, useful resources, department information and everyday support."
   >
 
   <meta name="theme-color" content="#020a0a">
 
   <title>Employee Hub | Stoke City FC</title>
 
-  <!--
-    Prototype fonts:
-    Titillium Web is the approved supporting typeface.
-    Roboto Slab is a temporary substitute for the licensed Victoria font.
-  -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
+
   <link
     rel="preconnect"
     href="https://fonts.gstatic.com"
@@ -45,8 +41,9 @@
   <div class="prototype-banner" role="note">
     <div class="container prototype-banner__inner">
       <strong>Employee Hub prototype</strong>
+
       <span>
-        This site is currently being used for design and stakeholder feedback.
+        Currently being used for design and stakeholder feedback.
       </span>
     </div>
   </div>
@@ -94,6 +91,7 @@
         aria-label="Main navigation"
       >
         <a href="#top">Home</a>
+        <a href="#news">Club News</a>
         <a href="#quick-links">Useful Resources</a>
         <a href="#departments">Departments</a>
 
@@ -103,8 +101,9 @@
           rel="noopener noreferrer"
         >
           Club Site
+
           <span class="visually-hidden">
-            (opens in a new tab)
+            opens in a new tab
           </span>
         </a>
       </nav>
@@ -141,10 +140,36 @@
           </div>
         </div>
 
-        <div class="hero__feature" aria-hidden="true">
-          <span class="hero__feature-number">1863</span>
-          <span class="hero__feature-title">Employee Hub</span>
-          <span class="hero__feature-line"></span>
+        <!--
+          HERO IMAGE PLACEHOLDER
+
+          When you have an approved photograph, replace the contents of
+          this div with:
+
+          <img
+            src="assets/images/hero/employee-hub-hero.jpg"
+            alt="Your descriptive alternative text"
+            width="900"
+            height="1100"
+          >
+        -->
+        <div class="hero-visual">
+          <div class="hero-visual__placeholder">
+            <span class="hero-visual__year">1863</span>
+
+            <span class="hero-visual__label">
+              Hero image placeholder
+            </span>
+
+            <span class="hero-visual__hint">
+              Approved club, stadium or staff photography
+            </span>
+          </div>
+
+          <div class="hero-visual__caption">
+            <span>Inside the club</span>
+            <strong>One team. One hub.</strong>
+          </div>
         </div>
       </div>
     </section>
@@ -163,8 +188,7 @@
             </h2>
 
             <p>
-              Search the current quick links by title, description or
-              keyword.
+              Search quick links by title, description or keyword.
             </p>
           </div>
 
@@ -199,43 +223,50 @@
     </section>
 
     <section
-      class="notice-section"
-      aria-labelledby="notice-heading"
+      class="ticker-section"
+      aria-labelledby="ticker-heading"
     >
-      <div class="container">
-        <div class="staff-notice">
-          <div class="staff-notice__label">
-            <span
-              class="staff-notice__indicator"
-              aria-hidden="true"
-            ></span>
+      <h2 class="visually-hidden" id="ticker-heading">
+        Staff updates and club results
+      </h2>
 
-            <span>Staff notice</span>
-          </div>
+      <div class="ticker">
+        <div class="ticker__label">
+          <span class="ticker__live-dot" aria-hidden="true"></span>
+          <span>Staff updates</span>
+        </div>
 
-          <div class="staff-notice__content">
-            <div>
-              <h2 id="notice-heading">
-                Important staff information
-              </h2>
-
-              <p>
-                This area can be used for planned works, important
-                dates, operational updates or other time-sensitive
-                messages for colleagues.
-              </p>
-            </div>
-
-            <a
-              class="staff-notice__link prototype-link"
-              href="#"
-              data-prototype-message="Staff notice destinations will be connected when the permanent content source is agreed."
-            >
-              View update
-              <span aria-hidden="true">→</span>
-            </a>
+        <div
+          class="ticker__viewport"
+          id="tickerViewport"
+          tabindex="0"
+          aria-label="Latest staff notices and club results"
+        >
+          <div class="ticker__track" id="tickerTrack">
+            <!-- Ticker items are inserted by script.js -->
           </div>
         </div>
+
+        <button
+          class="ticker__control"
+          id="tickerControl"
+          type="button"
+          aria-pressed="false"
+          aria-label="Pause staff updates"
+        >
+          <span class="ticker__pause-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+
+          <span class="ticker__play-icon" aria-hidden="true">
+            ▶
+          </span>
+
+          <span class="ticker__control-text">
+            Pause
+          </span>
+        </button>
       </div>
     </section>
 
@@ -259,26 +290,34 @@
           <a
             class="text-link text-link--light prototype-link"
             href="#"
-            data-prototype-message="The full news area will be connected when the permanent content source is agreed."
+            data-prototype-message="The full news area will be connected when its permanent content source is agreed."
           >
             View all club news
             <span aria-hidden="true">→</span>
           </a>
         </div>
 
-        <div class="news-grid">
-          <article class="lead-story">
-            <div class="lead-story__visual">
-              <span class="lead-story__visual-label">
-                Featured update
+        <div class="news-layout">
+          <article class="featured-story">
+            <a
+              class="news-image news-image--featured prototype-link"
+              href="#"
+              data-prototype-message="This is an image placeholder for the featured story."
+              aria-label="Featured news image placeholder"
+            >
+              <span class="image-placeholder__shape" aria-hidden="true">
               </span>
 
-              <span class="lead-story__visual-title">
-                Employee Hub
+              <span class="image-placeholder__label">
+                Featured news image
               </span>
-            </div>
 
-            <div class="lead-story__content">
+              <span class="image-placeholder__hint">
+                Recommended landscape crop
+              </span>
+            </a>
+
+            <div class="featured-story__content">
               <span class="news-category">
                 Employee Hub
               </span>
@@ -296,7 +335,7 @@
               <a
                 class="text-link prototype-link"
                 href="#"
-                data-prototype-message="This news article is placeholder content for the prototype."
+                data-prototype-message="This article is placeholder content for the prototype."
               >
                 Read update
                 <span aria-hidden="true">→</span>
@@ -304,13 +343,23 @@
             </div>
           </article>
 
-          <div class="story-list">
-            <article class="story-item">
-              <span class="story-item__number" aria-hidden="true">
-                01
-              </span>
+          <div class="secondary-stories">
+            <article class="story-card">
+              <a
+                class="news-image news-image--small news-image--blue prototype-link"
+                href="#"
+                data-prototype-message="This is an image placeholder for a news story."
+                aria-label="News image placeholder"
+              >
+                <span class="image-placeholder__shape" aria-hidden="true">
+                </span>
 
-              <div>
+                <span class="image-placeholder__label">
+                  News image
+                </span>
+              </a>
+
+              <div class="story-card__content">
                 <span class="news-category">
                   Club update
                 </span>
@@ -320,9 +369,9 @@
                 </h3>
 
                 <a
-                  class="story-item__link prototype-link"
+                  class="story-card__link prototype-link"
                   href="#"
-                  data-prototype-message="This news article is placeholder content for the prototype."
+                  data-prototype-message="This article is placeholder content for the prototype."
                 >
                   Read update
                   <span aria-hidden="true">→</span>
@@ -330,24 +379,34 @@
               </div>
             </article>
 
-            <article class="story-item">
-              <span class="story-item__number" aria-hidden="true">
-                02
-              </span>
+            <article class="story-card">
+              <a
+                class="news-image news-image--small news-image--gold prototype-link"
+                href="#"
+                data-prototype-message="This is an image placeholder for a news story."
+                aria-label="News image placeholder"
+              >
+                <span class="image-placeholder__shape" aria-hidden="true">
+                </span>
 
-              <div>
+                <span class="image-placeholder__label">
+                  News image
+                </span>
+              </a>
+
+              <div class="story-card__content">
                 <span class="news-category">
                   People team
                 </span>
 
                 <h3>
-                  Wellbeing support and resources available to staff
+                  Wellbeing support available to club colleagues
                 </h3>
 
                 <a
-                  class="story-item__link prototype-link"
+                  class="story-card__link prototype-link"
                   href="#"
-                  data-prototype-message="This news article is placeholder content for the prototype."
+                  data-prototype-message="This article is placeholder content for the prototype."
                 >
                   Read update
                   <span aria-hidden="true">→</span>
@@ -355,12 +414,22 @@
               </div>
             </article>
 
-            <article class="story-item">
-              <span class="story-item__number" aria-hidden="true">
-                03
-              </span>
+            <article class="story-card">
+              <a
+                class="news-image news-image--small news-image--red prototype-link"
+                href="#"
+                data-prototype-message="This is an image placeholder for a news story."
+                aria-label="News image placeholder"
+              >
+                <span class="image-placeholder__shape" aria-hidden="true">
+                </span>
 
-              <div>
+                <span class="image-placeholder__label">
+                  News image
+                </span>
+              </a>
+
+              <div class="story-card__content">
                 <span class="news-category">
                   Community
                 </span>
@@ -370,9 +439,9 @@
                 </h3>
 
                 <a
-                  class="story-item__link prototype-link"
+                  class="story-card__link prototype-link"
                   href="#"
-                  data-prototype-message="This news article is placeholder content for the prototype."
+                  data-prototype-message="This article is placeholder content for the prototype."
                 >
                   Read update
                   <span aria-hidden="true">→</span>
@@ -399,16 +468,22 @@
             </h2>
 
             <p class="section-intro__summary">
-              Browse the current prototype links. These will eventually
-              connect to the relevant SharePoint, Microsoft 365 and
-              internal system destinations.
+              Browse frequently used services and information. These
+              prototype cards will eventually connect to SharePoint,
+              Microsoft 365 and internal club systems.
             </p>
           </div>
 
-          <div
-            class="resource-controls"
-            aria-label="Resource navigation controls"
-          >
+          <div class="resource-toolbar">
+            <div
+              class="resource-progress"
+              aria-hidden="true"
+            >
+              <span id="resourceCurrent">01</span>
+              <span class="resource-progress__line"></span>
+              <span id="resourceTotal">08</span>
+            </div>
+
             <button
               class="resource-control"
               id="quickLinksPrevious"
@@ -433,7 +508,7 @@
           class="resource-track"
           id="quickLinksTrack"
           tabindex="0"
-          aria-label="Useful resources. Scroll horizontally to see more."
+          aria-label="Useful resources. Use the arrow buttons or scroll horizontally to see more."
         >
           <a
             class="resource-card prototype-link"
@@ -441,23 +516,23 @@
             data-resource="employee handbook policies guidance staff people information"
             data-prototype-message="The Employee Handbook link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              01
+            <span class="resource-card__image resource-card__image--red">
+              <span aria-hidden="true">EH</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              People
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">People</span>
+              <strong class="resource-card__title">Employee Handbook</strong>
 
-            <h3>Employee Handbook</h3>
+              <span class="resource-card__description">
+                Club guidance, policies and everyday staff information.
+              </span>
 
-            <p>
-              Club guidance, policies and everyday staff information.
-            </p>
-
-            <span class="resource-card__action">
-              Open resource
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Open resource
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -467,23 +542,23 @@
             data-resource="benefits wellbeing support colleague staff people"
             data-prototype-message="The Benefits link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              02
+            <span class="resource-card__image resource-card__image--gold">
+              <span aria-hidden="true">BE</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              People
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">People</span>
+              <strong class="resource-card__title">Benefits</strong>
 
-            <h3>Benefits</h3>
+              <span class="resource-card__description">
+                Explore colleague benefits and wellbeing support.
+              </span>
 
-            <p>
-              Explore colleague benefits and wellbeing support.
-            </p>
-
-            <span class="resource-card__action">
-              View benefits
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                View benefits
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -493,23 +568,23 @@
             data-resource="brand hub logos guidelines marketing creative assets"
             data-prototype-message="The Brand Hub link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              03
+            <span class="resource-card__image resource-card__image--black">
+              <span aria-hidden="true">BH</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              Brand
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">Brand</span>
+              <strong class="resource-card__title">Brand Hub</strong>
 
-            <h3>Brand Hub</h3>
+              <span class="resource-card__description">
+                Approved club logos, guidance and brand resources.
+              </span>
 
-            <p>
-              Approved club logos, guidance and brand resources.
-            </p>
-
-            <span class="resource-card__action">
-              Visit Brand Hub
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Visit Brand Hub
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -519,23 +594,23 @@
             data-resource="learning hub training development courses skills"
             data-prototype-message="The Learning Hub link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              04
+            <span class="resource-card__image resource-card__image--blue">
+              <span aria-hidden="true">LH</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              Learning
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">Learning</span>
+              <strong class="resource-card__title">Learning Hub</strong>
 
-            <h3>Learning Hub</h3>
+              <span class="resource-card__description">
+                Training, development resources and learning support.
+              </span>
 
-            <p>
-              Training, development resources and learning support.
-            </p>
-
-            <span class="resource-card__action">
-              Start learning
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Start learning
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -545,23 +620,23 @@
             data-resource="club policies procedures forms guidance compliance"
             data-prototype-message="The Club Policies link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              05
+            <span class="resource-card__image resource-card__image--porcelain">
+              <span aria-hidden="true">CP</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              Policies
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">Policies</span>
+              <strong class="resource-card__title">Club Policies</strong>
 
-            <h3>Club Policies</h3>
+              <span class="resource-card__description">
+                Find current policies, procedures and useful forms.
+              </span>
 
-            <p>
-              Find current policies, procedures and useful forms.
-            </p>
-
-            <span class="resource-card__action">
-              View policies
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                View policies
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -571,23 +646,26 @@
             data-resource="it support technology systems equipment access digital help"
             data-prototype-message="The IT Support link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              06
+            <span class="resource-card__image resource-card__image--red">
+              <span aria-hidden="true">IT</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              IT &amp; Digital
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">
+                IT &amp; Digital
+              </span>
 
-            <h3>IT Support</h3>
+              <strong class="resource-card__title">IT Support</strong>
 
-            <p>
-              Request help with systems, equipment and access.
-            </p>
+              <span class="resource-card__description">
+                Request help with systems, equipment and access.
+              </span>
 
-            <span class="resource-card__action">
-              Get IT support
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Get IT support
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -597,23 +675,26 @@
             data-resource="payroll payslip payslips expenses finance claims money"
             data-prototype-message="The Payroll and Expenses link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              07
+            <span class="resource-card__image resource-card__image--gold">
+              <span aria-hidden="true">PE</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              Finance
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">Finance</span>
 
-            <h3>Payroll &amp; Expenses</h3>
+              <strong class="resource-card__title">
+                Payroll &amp; Expenses
+              </strong>
 
-            <p>
-              Payslip, payroll and expense claim information.
-            </p>
+              <span class="resource-card__description">
+                Payslip, payroll and expense claim information.
+              </span>
 
-            <span class="resource-card__action">
-              Open Finance
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Open Finance
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
 
@@ -623,31 +704,42 @@
             data-resource="staff directory colleague colleagues contacts departments people"
             data-prototype-message="The Staff Directory link has not yet been connected."
           >
-            <span class="resource-card__number" aria-hidden="true">
-              08
+            <span class="resource-card__image resource-card__image--blue">
+              <span aria-hidden="true">SD</span>
+              <small>Image placeholder</small>
             </span>
 
-            <span class="resource-card__category">
-              Directory
-            </span>
+            <span class="resource-card__body">
+              <span class="resource-card__category">Directory</span>
+              <strong class="resource-card__title">Staff Directory</strong>
 
-            <h3>Staff Directory</h3>
+              <span class="resource-card__description">
+                Find contact details for colleagues and departments.
+              </span>
 
-            <p>
-              Find contact details for colleagues and departments.
-            </p>
-
-            <span class="resource-card__action">
-              Find a colleague
-              <span aria-hidden="true">→</span>
+              <span class="resource-card__action">
+                Find a colleague
+                <span aria-hidden="true">→</span>
+              </span>
             </span>
           </a>
         </div>
 
-        <p class="resource-help">
-          Use the arrow buttons, your trackpad, mouse wheel or swipe
-          gesture to view more resources.
-        </p>
+        <div class="resource-footer">
+          <p>
+            The cards move automatically every five seconds. Hover,
+            focus or interact with the section to pause movement.
+          </p>
+
+          <button
+            class="resource-autoplay"
+            id="resourceAutoplay"
+            type="button"
+            aria-pressed="false"
+          >
+            Pause automatic movement
+          </button>
+        </div>
       </div>
     </section>
 
@@ -867,7 +959,7 @@
       </span>
 
       <span>
-        Employee Hub prototype · Version 0.4
+        Employee Hub prototype · Version 0.5
       </span>
     </div>
   </footer>
@@ -880,7 +972,7 @@
     aria-atomic="true"
     hidden
   >
-    <div class="prototype-toast__content">
+    <div>
       <strong>Prototype link</strong>
       <span id="prototypeToastMessage"></span>
     </div>
