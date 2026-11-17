@@ -1,12 +1,71 @@
 "use strict";
 
 /* =========================================================
+   EDITABLE TICKER CONTENT
+
+   Update this array whenever a result or staff notice changes.
+   The ticker is generated automatically from these entries.
+
+   Types:
+   - "result"
+   - "notice"
+   ========================================================= */
+
+const tickerItems = [
+  {
+    type: "result",
+    label: "First Team",
+    text: "Portsmouth 1–2 Stoke City"
+  },
+  {
+    type: "result",
+    label: "Women",
+    text: "Stoke City Women 6–1 Liverpool Feds"
+  },
+  {
+    type: "result",
+    label: "Under-21s",
+    text: "Stoke City U21 1–4 Fulham U21"
+  },
+  {
+    type: "notice",
+    label: "Staff Notice",
+    text: "Planned system maintenance this Friday from 6pm"
+  },
+  {
+    type: "notice",
+    label: "Reminder",
+    text: "Complete mandatory staff training by 4 December"
+  },
+  {
+    type: "notice",
+    label: "People Team",
+    text: "Benefits enrolment closes on 30 November"
+  },
+  {
+    type: "notice",
+    label: "Finance",
+    text: "Submit December expense claims by 15 December"
+  }
+];
+
+/* =========================================================
    ELEMENT REFERENCES
    ========================================================= */
 
 const menuButton = document.getElementById("menuButton");
-const menuButtonLabel = menuButton?.querySelector(".menu-button__label");
+const menuButtonLabel = menuButton?.querySelector(
+  ".menu-button__label"
+);
 const mainNavigation = document.getElementById("mainNavigation");
+
+const ticker = document.querySelector(".ticker");
+const tickerTrack = document.getElementById("tickerTrack");
+const tickerViewport = document.getElementById("tickerViewport");
+const tickerControl = document.getElementById("tickerControl");
+const tickerControlText = tickerControl?.querySelector(
+  ".ticker__control-text"
+);
 
 const searchForm = document.getElementById("searchForm");
 const hubSearch = document.getElementById("hubSearch");
@@ -17,6 +76,11 @@ const quickLinksPrevious = document.getElementById(
   "quickLinksPrevious"
 );
 const quickLinksNext = document.getElementById("quickLinksNext");
+const resourceAutoplay = document.getElementById(
+  "resourceAutoplay"
+);
+const resourceCurrent = document.getElementById("resourceCurrent");
+const resourceTotal = document.getElementById("resourceTotal");
 
 const prototypeToast = document.getElementById("prototypeToast");
 const prototypeToastMessage = document.getElementById(
@@ -28,7 +92,14 @@ const closePrototypeToast = document.getElementById(
 
 const currentYear = document.getElementById("currentYear");
 
+const reducedMotionQuery = window.matchMedia(
+  "(prefers-reduced-motion: reduce)"
+);
+
 let toastTimer = null;
+let resourceTimer = null;
+let resourceAutoplayPaused = false;
+let resourceInteractionPaused = false;
 
 /* =========================================================
    MOBILE NAVIGATION
@@ -52,9 +123,7 @@ function openMenu() {
   }
 }
 
-function closeMenu(options = {}) {
-  const { returnFocus = false } = options;
-
+function closeMenu(returnFocus = false) {
   if (!menuButton || !mainNavigation) {
     return;
   }
@@ -73,12 +142,8 @@ function closeMenu(options = {}) {
 }
 
 function toggleMenu() {
-  if (!menuButton || !mainNavigation) {
-    return;
-  }
-
   const isOpen =
-    menuButton.getAttribute("aria-expanded") === "true";
+    menuButton?.getAttribute("aria-expanded") === "true";
 
   if (isOpen) {
     closeMenu();
@@ -103,7 +168,7 @@ if (menuButton && mainNavigation) {
       event.key === "Escape" &&
       menuButton.getAttribute("aria-expanded") === "true"
     ) {
-      closeMenu({ returnFocus: true });
+      closeMenu(true);
     }
   });
 
@@ -115,14 +180,11 @@ if (menuButton && mainNavigation) {
     const menuIsOpen =
       menuButton.getAttribute("aria-expanded") === "true";
 
-    if (!menuIsOpen) {
-      return;
-    }
-
-    const clickWasInsideMenu = mainNavigation.contains(event.target);
-    const clickWasOnButton = menuButton.contains(event.target);
-
-    if (!clickWasInsideMenu && !clickWasOnButton) {
+    if (
+      menuIsOpen &&
+      !mainNavigation.contains(event.target) &&
+      !menuButton.contains(event.target)
+    ) {
       closeMenu();
     }
   });
@@ -135,7 +197,123 @@ if (menuButton && mainNavigation) {
 }
 
 /* =========================================================
-   PROTOTYPE LINK MESSAGE
+   MOVING STAFF TICKER
+   ========================================================= */
+
+function createTickerItem(item) {
+  const tickerItem = document.createElement("span");
+  tickerItem.className = `ticker__item ticker__item--${item.type}`;
+
+  const badge = document.createElement("strong");
+  badge.className = "ticker__badge";
+  badge.textContent = item.label;
+
+  const text = document.createElement("span");
+  text.className = "ticker__text";
+  text.textContent = item.text;
+
+  const separator = document.createElement("span");
+  separator.className = "ticker__separator";
+  separator.setAttribute("aria-hidden", "true");
+  separator.textContent = "•";
+
+  tickerItem.append(badge, text, separator);
+
+  return tickerItem;
+}
+
+function createTickerGroup(isDuplicate = false) {
+  const group = document.createElement("div");
+  group.className = "ticker__group";
+
+  if (isDuplicate) {
+    group.classList.add("ticker__group--duplicate");
+    group.setAttribute("aria-hidden", "true");
+  }
+
+  tickerItems.forEach((item) => {
+    group.appendChild(createTickerItem(item));
+  });
+
+  return group;
+}
+
+function renderTicker() {
+  if (!tickerTrack) {
+    return;
+  }
+
+  tickerTrack.replaceChildren(
+    createTickerGroup(false),
+    createTickerGroup(true)
+  );
+
+  window.requestAnimationFrame(() => {
+    const firstGroup = tickerTrack.querySelector(".ticker__group");
+
+    if (!firstGroup) {
+      return;
+    }
+
+    /*
+      Roughly 75 pixels per second creates a steady news-style
+      movement without racing through the messages.
+    */
+    const duration = Math.max(firstGroup.scrollWidth / 75, 30);
+
+    tickerTrack.style.setProperty(
+      "--ticker-duration",
+      `${duration}s`
+    );
+  });
+}
+
+function setTickerPaused(isPaused) {
+  if (!ticker || !tickerControl || !tickerControlText) {
+    return;
+  }
+
+  ticker.classList.toggle("is-paused", isPaused);
+  tickerControl.setAttribute("aria-pressed", String(isPaused));
+  tickerControl.setAttribute(
+    "aria-label",
+    isPaused ? "Play staff updates" : "Pause staff updates"
+  );
+  tickerControlText.textContent = isPaused ? "Play" : "Pause";
+}
+
+function toggleTicker() {
+  const isPaused = ticker?.classList.contains("is-paused");
+  setTickerPaused(!isPaused);
+}
+
+renderTicker();
+
+if (tickerControl) {
+  tickerControl.addEventListener("click", toggleTicker);
+}
+
+if (reducedMotionQuery.matches) {
+  setTickerPaused(true);
+  tickerControl?.setAttribute("disabled", "");
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (!ticker || reducedMotionQuery.matches) {
+    return;
+  }
+
+  if (document.hidden) {
+    ticker.classList.add("ticker--tab-hidden");
+    ticker.classList.add("is-paused");
+  } else if (ticker.classList.contains("ticker--tab-hidden")) {
+    ticker.classList.remove("ticker--tab-hidden");
+    setTickerPaused(false);
+  }
+});
+
+/* =========================================================
+   PROTOTYPE LINK MESSAGES
    ========================================================= */
 
 function hidePrototypeMessage() {
@@ -156,26 +334,23 @@ function showPrototypeMessage(message) {
     return;
   }
 
-  const fallbackMessage =
-    "This destination has not yet been connected.";
+  prototypeToastMessage.textContent =
+    message || "This destination has not yet been connected.";
 
-  prototypeToastMessage.textContent = message || fallbackMessage;
   prototypeToast.hidden = false;
 
   if (toastTimer) {
     window.clearTimeout(toastTimer);
   }
 
-  toastTimer = window.setTimeout(() => {
-    hidePrototypeMessage();
-  }, 7000);
+  toastTimer = window.setTimeout(hidePrototypeMessage, 7000);
 }
 
 document.querySelectorAll(".prototype-link").forEach((link) => {
   link.addEventListener("click", (event) => {
     const href = link.getAttribute("href");
 
-    if (href === "#" || !href) {
+    if (!href || href === "#") {
       event.preventDefault();
 
       showPrototypeMessage(
@@ -186,9 +361,10 @@ document.querySelectorAll(".prototype-link").forEach((link) => {
   });
 });
 
-if (closePrototypeToast) {
-  closePrototypeToast.addEventListener("click", hidePrototypeMessage);
-}
+closePrototypeToast?.addEventListener(
+  "click",
+  hidePrototypeMessage
+);
 
 document.addEventListener("keydown", (event) => {
   if (
@@ -201,8 +377,7 @@ document.addEventListener("keydown", (event) => {
 });
 
 /* =========================================================
-   RESOURCE CAROUSEL
-   Manual controls only. No automatic rotation.
+   QUICK LINKS
    ========================================================= */
 
 function getResourceCards() {
@@ -223,9 +398,42 @@ function getResourceScrollDistance() {
   }
 
   const trackStyles = window.getComputedStyle(quickLinksTrack);
-  const gap = Number.parseFloat(trackStyles.columnGap) || 16;
+  const gap = Number.parseFloat(trackStyles.columnGap) || 18;
 
   return firstCard.getBoundingClientRect().width + gap;
+}
+
+function getCurrentResourceIndex() {
+  if (!quickLinksTrack) {
+    return 0;
+  }
+
+  const distance = getResourceScrollDistance();
+
+  return Math.max(
+    0,
+    Math.min(
+      getResourceCards().length - 1,
+      Math.round(quickLinksTrack.scrollLeft / distance)
+    )
+  );
+}
+
+function updateResourceProgress() {
+  const cards = getResourceCards();
+  const currentIndex = getCurrentResourceIndex();
+
+  if (resourceCurrent) {
+    resourceCurrent.textContent = String(
+      currentIndex + 1
+    ).padStart(2, "0");
+  }
+
+  if (resourceTotal) {
+    resourceTotal.textContent = String(
+      cards.length
+    ).padStart(2, "0");
+  }
 }
 
 function scrollResources(direction) {
@@ -233,32 +441,81 @@ function scrollResources(direction) {
     return;
   }
 
-  const distance = getResourceScrollDistance() * direction;
-
   quickLinksTrack.scrollBy({
-    left: distance,
+    left: getResourceScrollDistance() * direction,
     behavior: "smooth"
   });
 }
 
-function updateResourceControls() {
-  if (
-    !quickLinksTrack ||
-    !quickLinksPrevious ||
-    !quickLinksNext
-  ) {
+function moveToNextResource() {
+  if (!quickLinksTrack) {
     return;
   }
 
   const maxScrollLeft =
     quickLinksTrack.scrollWidth - quickLinksTrack.clientWidth;
 
-  const isAtStart = quickLinksTrack.scrollLeft <= 4;
-  const isAtEnd =
-    quickLinksTrack.scrollLeft >= maxScrollLeft - 4;
+  const atEnd =
+    quickLinksTrack.scrollLeft >= maxScrollLeft - 8;
 
-  quickLinksPrevious.disabled = isAtStart;
-  quickLinksNext.disabled = isAtEnd || maxScrollLeft <= 4;
+  if (atEnd) {
+    quickLinksTrack.scrollTo({
+      left: 0,
+      behavior: "smooth"
+    });
+  } else {
+    scrollResources(1);
+  }
+}
+
+function stopResourceAutoplay() {
+  if (resourceTimer) {
+    window.clearInterval(resourceTimer);
+    resourceTimer = null;
+  }
+}
+
+function startResourceAutoplay() {
+  stopResourceAutoplay();
+
+  if (
+    reducedMotionQuery.matches ||
+    resourceAutoplayPaused ||
+    resourceInteractionPaused ||
+    document.hidden
+  ) {
+    return;
+  }
+
+  resourceTimer = window.setInterval(
+    moveToNextResource,
+    5000
+  );
+}
+
+function setResourceInteractionPaused(isPaused) {
+  resourceInteractionPaused = isPaused;
+
+  if (isPaused) {
+    stopResourceAutoplay();
+  } else {
+    startResourceAutoplay();
+  }
+}
+
+function updateResourceAutoplayButton() {
+  if (!resourceAutoplay) {
+    return;
+  }
+
+  resourceAutoplay.setAttribute(
+    "aria-pressed",
+    String(resourceAutoplayPaused)
+  );
+
+  resourceAutoplay.textContent = resourceAutoplayPaused
+    ? "Resume automatic movement"
+    : "Pause automatic movement";
 }
 
 if (
@@ -268,15 +525,53 @@ if (
 ) {
   quickLinksPrevious.addEventListener("click", () => {
     scrollResources(-1);
+    startResourceAutoplay();
   });
 
   quickLinksNext.addEventListener("click", () => {
-    scrollResources(1);
+    moveToNextResource();
+    startResourceAutoplay();
   });
 
   quickLinksTrack.addEventListener(
     "scroll",
-    updateResourceControls,
+    updateResourceProgress,
+    { passive: true }
+  );
+
+  quickLinksTrack.addEventListener("mouseenter", () => {
+    setResourceInteractionPaused(true);
+  });
+
+  quickLinksTrack.addEventListener("mouseleave", () => {
+    setResourceInteractionPaused(false);
+  });
+
+  quickLinksTrack.addEventListener("focusin", () => {
+    setResourceInteractionPaused(true);
+  });
+
+  quickLinksTrack.addEventListener("focusout", (event) => {
+    if (!quickLinksTrack.contains(event.relatedTarget)) {
+      setResourceInteractionPaused(false);
+    }
+  });
+
+  quickLinksTrack.addEventListener(
+    "pointerdown",
+    () => {
+      setResourceInteractionPaused(true);
+    },
+    { passive: true }
+  );
+
+  quickLinksTrack.addEventListener(
+    "pointerup",
+    () => {
+      window.setTimeout(() => {
+        setResourceInteractionPaused(false);
+      }, 1200);
+    },
     { passive: true }
   );
 
@@ -310,10 +605,39 @@ if (
     }
   });
 
-  window.addEventListener("resize", updateResourceControls);
+  window.addEventListener("resize", updateResourceProgress);
 
-  updateResourceControls();
+  updateResourceProgress();
+  startResourceAutoplay();
 }
+
+resourceAutoplay?.addEventListener("click", () => {
+  resourceAutoplayPaused = !resourceAutoplayPaused;
+  updateResourceAutoplayButton();
+
+  if (resourceAutoplayPaused) {
+    stopResourceAutoplay();
+  } else {
+    startResourceAutoplay();
+  }
+});
+
+if (reducedMotionQuery.matches) {
+  resourceAutoplayPaused = true;
+  stopResourceAutoplay();
+
+  if (resourceAutoplay) {
+    resourceAutoplay.hidden = true;
+  }
+}
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    stopResourceAutoplay();
+  } else {
+    startResourceAutoplay();
+  }
+});
 
 /* =========================================================
    RESOURCE SEARCH
@@ -335,60 +659,23 @@ function normaliseSearchText(value) {
 }
 
 function getCardSearchText(card) {
-  const visibleText = card.textContent || "";
-  const keywords = card.dataset.resource || "";
-
-  return normaliseSearchText(`${visibleText} ${keywords}`);
+  return normaliseSearchText(
+    `${card.textContent || ""} ${card.dataset.resource || ""}`
+  );
 }
 
 function findResourceMatches(searchTerm) {
-  const normalisedTerm = normaliseSearchText(searchTerm);
-
-  if (!normalisedTerm) {
-    return [];
-  }
-
-  const searchWords = normalisedTerm
+  const words = normaliseSearchText(searchTerm)
     .split(" ")
-    .filter((word) => word.length > 0);
+    .filter(Boolean);
 
   return getResourceCards().filter((card) => {
     const searchableText = getCardSearchText(card);
 
-    return searchWords.every((word) =>
+    return words.every((word) =>
       searchableText.includes(word)
     );
   });
-}
-
-function showSearchResult(matches, originalSearchTerm) {
-  if (!searchStatus) {
-    return;
-  }
-
-  searchStatus.classList.remove("is-error");
-
-  if (matches.length === 1) {
-    searchStatus.textContent =
-      `1 resource found for “${originalSearchTerm}”.`;
-    return;
-  }
-
-  searchStatus.textContent =
-    `${matches.length} resources found for ` +
-    `“${originalSearchTerm}”. The first result is highlighted.`;
-}
-
-function showNoSearchResult(originalSearchTerm) {
-  if (!searchStatus) {
-    return;
-  }
-
-  searchStatus.classList.add("is-error");
-  searchStatus.textContent =
-    `No resources were found for “${originalSearchTerm}”. ` +
-    "Try handbook, benefits, brand, learning, policies, IT, " +
-    "payroll or directory.";
 }
 
 function focusFirstSearchMatch(matches) {
@@ -404,12 +691,15 @@ function focusFirstSearchMatch(matches) {
 
   const trackLeft =
     quickLinksTrack.getBoundingClientRect().left;
-  const cardLeft = firstMatch.getBoundingClientRect().left;
-  const destination =
-    quickLinksTrack.scrollLeft + cardLeft - trackLeft - 4;
+  const cardLeft =
+    firstMatch.getBoundingClientRect().left;
 
   quickLinksTrack.scrollTo({
-    left: destination,
+    left:
+      quickLinksTrack.scrollLeft +
+      cardLeft -
+      trackLeft -
+      4,
     behavior: "smooth"
   });
 
@@ -421,23 +711,21 @@ function focusFirstSearchMatch(matches) {
     });
 
   window.setTimeout(() => {
-    firstMatch.focus({
-      preventScroll: true
-    });
+    firstMatch.focus({ preventScroll: true });
   }, 450);
 }
 
 if (searchForm && hubSearch && quickLinksTrack) {
   searchForm.addEventListener("submit", (event) => {
     event.preventDefault();
-
     clearSearchHighlights();
 
-    const originalSearchTerm = hubSearch.value.trim();
+    const term = hubSearch.value.trim();
 
-    if (!originalSearchTerm) {
+    if (!term) {
+      searchStatus?.classList.add("is-error");
+
       if (searchStatus) {
-        searchStatus.classList.add("is-error");
         searchStatus.textContent =
           "Enter a word or phrase to search the quick links.";
       }
@@ -446,14 +734,30 @@ if (searchForm && hubSearch && quickLinksTrack) {
       return;
     }
 
-    const matches = findResourceMatches(originalSearchTerm);
+    const matches = findResourceMatches(term);
 
     if (matches.length === 0) {
-      showNoSearchResult(originalSearchTerm);
+      searchStatus?.classList.add("is-error");
+
+      if (searchStatus) {
+        searchStatus.textContent =
+          `No resources were found for “${term}”. ` +
+          "Try handbook, benefits, brand, learning, policies, " +
+          "IT, payroll or directory.";
+      }
+
       return;
     }
 
-    showSearchResult(matches, originalSearchTerm);
+    searchStatus?.classList.remove("is-error");
+
+    if (searchStatus) {
+      searchStatus.textContent =
+        matches.length === 1
+          ? `1 resource found for “${term}”.`
+          : `${matches.length} resources found for “${term}”.`;
+    }
+
     focusFirstSearchMatch(matches);
   });
 
@@ -465,17 +769,6 @@ if (searchForm && hubSearch && quickLinksTrack) {
       searchStatus.classList.remove("is-error");
     }
   });
-
-  hubSearch.addEventListener("search", () => {
-    if (!hubSearch.value) {
-      clearSearchHighlights();
-
-      if (searchStatus) {
-        searchStatus.textContent = "";
-        searchStatus.classList.remove("is-error");
-      }
-    }
-  });
 }
 
 /* =========================================================
@@ -483,5 +776,7 @@ if (searchForm && hubSearch && quickLinksTrack) {
    ========================================================= */
 
 if (currentYear) {
-  currentYear.textContent = String(new Date().getFullYear());
+  currentYear.textContent = String(
+    new Date().getFullYear()
+  );
 }
