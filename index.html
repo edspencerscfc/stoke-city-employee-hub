@@ -44,7 +44,7 @@
   </div>
 
   <div class="utility">
-    <div class="wrap">
+    <div class="wrap utility__inner">
       <nav aria-label="Staff shortcuts">
         <a href="#" data-demo>Staff directory</a>
         <a href="#" data-demo>IT support</a>
@@ -53,7 +53,7 @@
         <a
           href="https://www.stokecityfc.com/"
           target="_blank"
-          rel="noopener"
+          rel="noopener noreferrer"
         >
           Club site
         </a>
@@ -64,8 +64,12 @@
   </div>
 
   <header class="header">
-    <div class="wrap header-in">
-      <a class="brand" href="#top">
+    <div class="wrap header__inner">
+      <a
+        class="brand"
+        href="#top"
+        aria-label="Stoke City FC Employee Hub home"
+      >
         <img
           src="stoke-city-crest.png"
           alt="Stoke City FC"
@@ -78,18 +82,18 @@
       </a>
 
       <button
-        id="menuBtn"
-        class="menu"
+        id="menuButton"
+        class="menu-button"
         type="button"
         aria-expanded="false"
-        aria-controls="nav"
+        aria-controls="mainNavigation"
       >
         Menu
       </button>
 
       <nav
-        id="nav"
-        class="nav"
+        id="mainNavigation"
+        class="main-navigation"
         aria-label="Main navigation"
       >
         <a href="#top">Home</a>
@@ -102,16 +106,19 @@
   </header>
 
   <main id="main">
-    <section class="hero">
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <span class="kicker gold">
-            Employee hub
+    <section
+      class="hero"
+      aria-labelledby="hero-heading"
+    >
+      <div class="wrap hero__layout">
+        <div class="hero__copy">
+          <span class="kicker kicker--gold">
+            Employee Hub
           </span>
 
-          <h1>
+          <h1 id="hero-heading">
             Everything you need.<br>
-            <i>All in one place.</i>
+            <em>All in one place.</em>
           </h1>
 
           <p>
@@ -119,37 +126,28 @@
             Stoke City.
           </p>
 
-          <div class="actions">
-            <a class="btn" href="#resources">
+          <div class="hero__actions">
+            <a class="button" href="#resources">
               Explore resources
             </a>
 
-            <a class="arrow" href="#news">
+            <a class="text-link text-link--light" href="#news">
               Latest staff news →
             </a>
           </div>
         </div>
 
-        <!--
-          Replace this whole block with an approved image later:
-
-          <div class="hero-photo">
-            <img
-              src="your-hero-image.jpg"
-              alt="Descriptive alternative text"
-            >
-          </div>
-        -->
-
         <div
-          class="hero-photo placeholder"
+          class="hero__visual image-placeholder"
           role="img"
           aria-label="Placeholder for approved club, stadium or staff photography"
         >
-          <span class="year">1863</span>
+          <span class="hero__year" aria-hidden="true">
+            1863
+          </span>
 
-          <div>
-            <b>Hero image placeholder</b>
+          <div class="image-placeholder__caption">
+            <strong>Hero image placeholder</strong>
 
             <small>
               Approved club, stadium or staff photography
@@ -163,27 +161,28 @@
       class="ticker"
       aria-label="Staff updates and club results"
     >
-      <div class="ticker-label">
+      <div class="ticker__label">
         <span aria-hidden="true"></span>
         Staff updates
       </div>
 
       <div
-        id="tickerView"
-        class="ticker-view"
+        id="tickerViewport"
+        class="ticker__viewport"
         tabindex="0"
       >
         <div
           id="tickerTrack"
-          class="ticker-track"
+          class="ticker__track"
         ></div>
       </div>
 
       <button
-        id="tickerBtn"
-        class="ticker-btn"
+        id="tickerButton"
+        class="ticker__button"
         type="button"
         aria-pressed="false"
+        aria-label="Pause staff updates"
       >
         Pause
       </button>
@@ -193,7 +192,7 @@
       <div class="wrap">
         <form
           id="searchForm"
-          class="search"
+          class="resource-search"
           role="search"
         >
           <div>
@@ -201,21 +200,20 @@
               Find it fast
             </span>
 
-            <h2>
-              What do you need today?
-            </h2>
+            <h2>What do you need today?</h2>
           </div>
 
           <div>
-            <label class="sr" for="searchInput">
-              Search resources
+            <label class="sr-only" for="searchInput">
+              Search useful resources
             </label>
 
-            <div class="search-box">
+            <div class="resource-search__field">
               <input
                 id="searchInput"
                 type="search"
                 placeholder="Try IT, payroll, benefits or policies"
+                autocomplete="off"
               >
 
               <button type="submit">
@@ -225,7 +223,7 @@
 
             <p
               id="searchStatus"
-              class="status"
+              class="search-status"
               aria-live="polite"
             ></p>
           </div>
@@ -270,25 +268,26 @@
 
     <section
       id="news"
-      class="section news"
+      class="section news-section"
+      aria-labelledby="news-heading"
     >
       <div class="wrap">
-        <div class="section-head light">
+        <div class="section-heading section-heading--light">
           <div>
-            <span class="kicker gold">
+            <span class="kicker kicker--gold">
               Latest from the club
             </span>
 
-            <h2>
+            <h2 id="news-heading">
               Staff news and updates
             </h2>
           </div>
 
           <div
-            class="tabs"
-            aria-label="News filters"
+            class="news-tabs"
+            aria-label="News categories"
           >
-            <button class="active" type="button">
+            <button class="is-active" type="button">
               Latest
             </button>
 
@@ -306,17 +305,18 @@
           </div>
         </div>
 
-        <div class="news-grid">
-          <article class="feature">
+        <div class="news-layout">
+          <article class="featured-story">
             <a
               href="#"
               data-demo
-              class="feature-image placeholder"
+              class="featured-story__image image-placeholder"
+              aria-label="Featured story image placeholder"
             >
               <span>Featured story image</span>
             </a>
 
-            <div class="overlay">
+            <div class="featured-story__overlay">
               <small>Employee Hub · Today</small>
 
               <h3>
@@ -335,11 +335,11 @@
           </article>
 
           <div class="story-list">
-            <article>
+            <article class="story-card">
               <a
                 href="#"
                 data-demo
-                class="story-img blue placeholder"
+                class="story-card__image story-card__image--blue image-placeholder"
               >
                 News image
               </a>
@@ -357,11 +357,11 @@
               </div>
             </article>
 
-            <article>
+            <article class="story-card">
               <a
                 href="#"
                 data-demo
-                class="story-img gold-bg placeholder"
+                class="story-card__image story-card__image--gold image-placeholder"
               >
                 News image
               </a>
@@ -379,11 +379,11 @@
               </div>
             </article>
 
-            <article>
+            <article class="story-card">
               <a
                 href="#"
                 data-demo
-                class="story-img red placeholder"
+                class="story-card__image story-card__image--red image-placeholder"
               >
                 News image
               </a>
@@ -407,16 +407,17 @@
 
     <section
       id="resources"
-      class="section resources"
+      class="section resources-section"
+      aria-labelledby="resources-heading"
     >
       <div class="wrap">
-        <div class="section-head">
+        <div class="section-heading">
           <div>
             <span class="kicker">
               Popular resources
             </span>
 
-            <h2>
+            <h2 id="resources-heading">
               Useful links for colleagues
             </h2>
 
@@ -426,13 +427,13 @@
             </p>
           </div>
 
-          <div class="controls">
-            <span id="counter">
+          <div class="resource-controls">
+            <span id="resourceCounter">
               01 / 06
             </span>
 
             <button
-              id="prev"
+              id="resourcePrevious"
               type="button"
               aria-label="Previous resource"
             >
@@ -440,7 +441,7 @@
             </button>
 
             <button
-              id="next"
+              id="resourceNext"
               type="button"
               aria-label="Next resource"
             >
@@ -453,14 +454,15 @@
           id="resourceTrack"
           class="resource-track"
           tabindex="0"
+          aria-label="Popular resources"
         >
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="handbook people policies guidance"
           >
-            <span class="resource-img red placeholder">
+            <span class="resource-card__image resource-card__image--red image-placeholder">
               Employee Handbook image
             </span>
 
@@ -473,17 +475,17 @@
                 Club guidance, policies and everyday staff information.
               </p>
 
-              <b>Open resource →</b>
+              <strong>Open resource →</strong>
             </div>
           </a>
 
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="benefits wellbeing people"
           >
-            <span class="resource-img gold-bg placeholder">
+            <span class="resource-card__image resource-card__image--gold image-placeholder">
               Benefits image
             </span>
 
@@ -496,17 +498,17 @@
                 Explore colleague benefits and wellbeing support.
               </p>
 
-              <b>View benefits →</b>
+              <strong>View benefits →</strong>
             </div>
           </a>
 
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="brand logos assets guidelines"
           >
-            <span class="resource-img black placeholder">
+            <span class="resource-card__image resource-card__image--black image-placeholder">
               Brand Hub image
             </span>
 
@@ -519,17 +521,17 @@
                 Approved club logos, guidance and brand resources.
               </p>
 
-              <b>Visit Brand Hub →</b>
+              <strong>Visit Brand Hub →</strong>
             </div>
           </a>
 
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="learning training development"
           >
-            <span class="resource-img blue placeholder">
+            <span class="resource-card__image resource-card__image--blue image-placeholder">
               Learning Hub image
             </span>
 
@@ -542,17 +544,17 @@
                 Training, development resources and learning support.
               </p>
 
-              <b>Start learning →</b>
+              <strong>Start learning →</strong>
             </div>
           </a>
 
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="it support systems equipment access"
           >
-            <span class="resource-img red placeholder">
+            <span class="resource-card__image resource-card__image--red image-placeholder">
               IT Support image
             </span>
 
@@ -565,17 +567,17 @@
                 Request help with systems, equipment and access.
               </p>
 
-              <b>Get support →</b>
+              <strong>Get support →</strong>
             </div>
           </a>
 
           <a
-            class="resource"
+            class="resource-card"
             href="#"
             data-demo
             data-keywords="directory staff contacts colleagues"
           >
-            <span class="resource-img blue placeholder">
+            <span class="resource-card__image resource-card__image--blue image-placeholder">
               Staff Directory image
             </span>
 
@@ -588,14 +590,14 @@
                 Find contact details for colleagues and departments.
               </p>
 
-              <b>Find a colleague →</b>
+              <strong>Find a colleague →</strong>
             </div>
           </a>
         </div>
 
-        <div class="resource-bottom">
+        <div class="resource-footer">
           <button
-            id="autoplay"
+            id="resourceAutoplay"
             type="button"
             aria-pressed="false"
           >
@@ -607,7 +609,7 @@
           </a>
         </div>
 
-        <div class="directory">
+        <div class="resource-directory">
           <a href="#" data-demo>Club policies</a>
           <a href="#" data-demo>Payroll &amp; expenses</a>
           <a href="#" data-demo>Forms &amp; templates</a>
@@ -620,22 +622,23 @@
 
     <section
       id="departments"
-      class="section departments"
+      class="section departments-section"
+      aria-labelledby="departments-heading"
     >
       <div class="wrap">
-        <div class="section-head">
+        <div class="section-heading">
           <div>
             <span class="kicker">
               Departments
             </span>
 
-            <h2>
+            <h2 id="departments-heading">
               Support from across the club
             </h2>
           </div>
         </div>
 
-        <div class="dept-grid">
+        <div class="departments-grid">
           <article>
             <span>01</span>
 
@@ -645,7 +648,7 @@
             <a href="#" data-demo>Benefits and wellbeing</a>
             <a href="#" data-demo>Policies and forms</a>
 
-            <b>Visit department →</b>
+            <strong>Visit department →</strong>
           </article>
 
           <article>
@@ -657,7 +660,7 @@
             <a href="#" data-demo>Expenses</a>
             <a href="#" data-demo>Purchasing</a>
 
-            <b>Visit department →</b>
+            <strong>Visit department →</strong>
           </article>
 
           <article>
@@ -669,7 +672,7 @@
             <a href="#" data-demo>Request access</a>
             <a href="#" data-demo>Equipment guidance</a>
 
-            <b>Visit department →</b>
+            <strong>Visit department →</strong>
           </article>
 
           <article>
@@ -681,7 +684,7 @@
             <a href="#" data-demo>Room booking</a>
             <a href="#" data-demo>Matchday access</a>
 
-            <b>Visit department →</b>
+            <strong>Visit department →</strong>
           </article>
         </div>
       </div>
@@ -689,74 +692,141 @@
 
     <section
       id="opportunities"
-      class="split"
+      class="opportunities-section"
+      aria-labelledby="opportunities-heading"
     >
-      <div class="opportunity">
-        <span class="kicker gold">
-          Internal opportunities
-        </span>
+      <div class="wrap opportunities-layout">
+        <div class="careers-panel">
+          <div class="careers-panel__content">
+            <span class="kicker kicker--gold">
+              Careers at Stoke City
+            </span>
 
-        <h2>
-          Grow your career with Stoke City
-        </h2>
+            <h2 id="opportunities-heading">
+              Be part of the team.
+            </h2>
 
-        <p>
-          Current vacancies, secondments, learning and volunteering
-          opportunities.
-        </p>
+            <p>
+              Explore current vacancies and opportunities to work
+              across Stoke City Football Club and the wider
+              organisation.
+            </p>
 
-        <a
-          class="btn light-btn"
-          href="#"
-          data-demo
+            <a
+              class="button careers-button"
+              href="https://www.stokecityfc.com/news/careers"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View opportunities
+
+              <span aria-hidden="true">↗</span>
+
+              <span class="sr-only">
+                opens in a new tab
+              </span>
+            </a>
+          </div>
+
+          <div
+            class="careers-panel__visual image-placeholder"
+            role="img"
+            aria-label="Placeholder for approved Stoke City careers or staff photography"
+          >
+            <span
+              class="careers-panel__year"
+              aria-hidden="true"
+            >
+              1863
+            </span>
+
+            <div>
+              <strong>Careers image</strong>
+
+              <small>
+                Approved staff or behind-the-scenes photography
+              </small>
+            </div>
+          </div>
+        </div>
+
+        <aside
+          class="upcoming-panel"
+          aria-labelledby="upcoming-heading"
         >
-          View opportunities
-        </a>
-      </div>
+          <div class="upcoming-panel__heading">
+            <div>
+              <span class="kicker">
+                Coming up
+              </span>
 
-      <div class="dates">
-        <span class="kicker">
-          Coming up
-        </span>
+              <h2 id="upcoming-heading">
+                Key dates
+              </h2>
+            </div>
 
-        <h2>
-          Upcoming dates
-        </h2>
+            <a
+              href="#"
+              data-demo
+              class="upcoming-panel__calendar-link"
+            >
+              View calendar →
+            </a>
+          </div>
 
-        <ul>
-          <li>
-            <time>21 NOV</time>
+          <ol class="upcoming-list">
+            <li>
+              <time datetime="2026-11-21">
+                <span>21</span>
+                <small>Nov</small>
+              </time>
 
-            <span>
-              <b>Staff briefing</b>
-              <small>9:30am · Conference room</small>
-            </span>
-          </li>
+              <div>
+                <strong>Staff briefing</strong>
 
-          <li>
-            <time>30 NOV</time>
+                <span>
+                  9:30am · Conference room
+                </span>
+              </div>
+            </li>
 
-            <span>
-              <b>Benefits enrolment closes</b>
-              <small>People Team</small>
-            </span>
-          </li>
+            <li>
+              <time datetime="2026-11-30">
+                <span>30</span>
+                <small>Nov</small>
+              </time>
 
-          <li>
-            <time>04 DEC</time>
+              <div>
+                <strong>Benefits enrolment closes</strong>
 
-            <span>
-              <b>Mandatory training deadline</b>
-              <small>Learning Hub</small>
-            </span>
-          </li>
-        </ul>
+                <span>
+                  People Team
+                </span>
+              </div>
+            </li>
+
+            <li>
+              <time datetime="2026-12-04">
+                <span>04</span>
+                <small>Dec</small>
+              </time>
+
+              <div>
+                <strong>Mandatory training deadline</strong>
+
+                <span>
+                  Learning Hub
+                </span>
+              </div>
+            </li>
+          </ol>
+        </aside>
       </div>
     </section>
   </main>
 
-  <footer>
-    <div class="wrap footer-grid">
+  <footer class="site-footer">
+    <div class="wrap footer-layout">
       <div>
         <div class="footer-brand">
           <img
@@ -765,7 +835,7 @@
           >
 
           <span>
-            <b>Stoke City FC</b>
+            <strong>Stoke City FC</strong>
             Employee Hub
           </span>
         </div>
@@ -777,14 +847,14 @@
       </div>
 
       <nav>
-        <b>Employee Hub</b>
+        <strong>Employee Hub</strong>
         <a href="#news">News</a>
         <a href="#resources">Resources</a>
         <a href="#departments">Departments</a>
       </nav>
 
       <nav>
-        <b>Need help?</b>
+        <strong>Need help?</strong>
         <a href="#" data-demo>People &amp; HR</a>
         <a href="#" data-demo>IT Support</a>
         <a href="#" data-demo>Give feedback</a>
@@ -793,29 +863,33 @@
 
     <div class="wrap copyright">
       <span>
-        © <span id="year"></span> Stoke City Football Club
+        © <span id="currentYear"></span>
+        Stoke City Football Club
       </span>
 
-      <span>Prototype v0.6</span>
+      <span>Prototype v0.7</span>
     </div>
   </footer>
 
   <div
-    id="toast"
-    class="toast"
+    id="prototypeToast"
+    class="prototype-toast"
     hidden
     role="status"
     aria-live="polite"
   >
     <div>
-      <b>Prototype link</b>
+      <strong>Prototype link</strong>
 
       <span>
         This destination has not yet been connected.
       </span>
     </div>
 
-    <button id="toastClose" type="button">
+    <button
+      id="closePrototypeToast"
+      type="button"
+    >
       Close
     </button>
   </div>
