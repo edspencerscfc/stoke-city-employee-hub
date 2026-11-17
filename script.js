@@ -2,55 +2,45 @@
 
 /* =========================================================
    EDITABLE TICKER CONTENT
-
-   Update these entries when results or staff notices change.
-
-   Available types:
-   - result
-   - notice
    ========================================================= */
 
 const tickerItems = [
   {
     type: "result",
     label: "First Team",
-    text: "Portsmouth 1–2 Stoke City"
+    message: "Portsmouth 1–2 Stoke City"
   },
   {
     type: "result",
     label: "Women",
-    text: "Stoke City Women 6–1 Liverpool Feds"
+    message: "Stoke City Women 6–1 Liverpool Feds"
   },
   {
     type: "result",
     label: "Under-21s",
-    text: "Stoke City U21 1–4 Fulham U21"
+    message: "Stoke City U21 1–4 Fulham U21"
   },
   {
     type: "notice",
     label: "Staff notice",
-    text: "Planned system maintenance this Friday from 6pm"
+    message: "Planned system maintenance this Friday from 6pm"
   },
   {
     type: "notice",
     label: "People Team",
-    text: "Benefits enrolment closes on 30 November"
+    message: "Benefits enrolment closes on 30 November"
   },
   {
     type: "notice",
     label: "Learning",
-    text: "Complete mandatory staff training by 4 December"
+    message: "Complete mandatory staff training by 4 December"
   },
   {
     type: "notice",
     label: "Finance",
-    text: "Submit December expenses by 15 December"
+    message: "Submit December expenses by 15 December"
   }
 ];
-
-/* =========================================================
-   HELPERS
-   ========================================================= */
 
 const select = (selector) => document.querySelector(selector);
 
@@ -62,90 +52,107 @@ const reducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)"
 );
 
-/* =========================================================
-   MOBILE NAVIGATION
-   ========================================================= */
+/* Mobile menu */
 
-const menuButton = select("#menuBtn");
-const navigation = select("#nav");
+const menuButton = select("#menuButton");
+const mainNavigation = select("#mainNavigation");
 
 function closeMenu(returnFocus = false) {
-  if (!menuButton || !navigation) {
+  if (!menuButton || !mainNavigation) {
     return;
   }
 
-  navigation.classList.remove("open");
+  mainNavigation.classList.remove("is-open");
   menuButton.setAttribute("aria-expanded", "false");
-  document.body.classList.remove("lock");
+  document.body.classList.remove("menu-open");
 
   if (returnFocus) {
     menuButton.focus();
   }
 }
 
-if (menuButton && navigation) {
-  menuButton.addEventListener("click", () => {
-    const isOpen = navigation.classList.toggle("open");
+menuButton?.addEventListener("click", () => {
+  const isOpen =
+    mainNavigation.classList.toggle("is-open");
 
-    menuButton.setAttribute(
-      "aria-expanded",
-      String(isOpen)
-    );
+  menuButton.setAttribute(
+    "aria-expanded",
+    String(isOpen)
+  );
 
-    document.body.classList.toggle("lock", isOpen);
-  });
+  document.body.classList.toggle(
+    "menu-open",
+    isOpen
+  );
+});
 
-  navigation.addEventListener("click", (event) => {
-    if (event.target.tagName === "A") {
-      closeMenu();
-    }
-  });
+mainNavigation?.addEventListener("click", (event) => {
+  if (event.target.tagName === "A") {
+    closeMenu();
+  }
+});
 
-  document.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") {
-      closeMenu(true);
-    }
-  });
-
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 740) {
-      closeMenu();
-    }
-  });
-}
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") {
+    closeMenu(true);
+  }
+});
 
 /* =========================================================
-   MOVING STAFF TICKER
+   CORRECTED STAFF TICKER
+
+   Every class created here exactly matches style.css.
    ========================================================= */
 
-const ticker = select(".ticker");
+const staffTicker = select(".staff-ticker");
 const tickerTrack = select("#tickerTrack");
-const tickerButton = select("#tickerBtn");
+const tickerButton = select("#tickerButton");
+
+function createTickerItem(item) {
+  const itemElement = document.createElement("span");
+  const badge = document.createElement("strong");
+  const message = document.createElement("span");
+  const separator = document.createElement("span");
+
+  itemElement.className =
+    `staff-ticker__item staff-ticker__item--${item.type}`;
+
+  badge.className = "staff-ticker__badge";
+  badge.textContent = item.label;
+
+  message.className = "staff-ticker__message";
+  message.textContent = item.message;
+
+  separator.className = "staff-ticker__separator";
+  separator.textContent = "•";
+  separator.setAttribute("aria-hidden", "true");
+
+  itemElement.append(
+    badge,
+    message,
+    separator
+  );
+
+  return itemElement;
+}
 
 function createTickerGroup(isDuplicate = false) {
   const group = document.createElement("div");
 
-  group.className = "ticker-group";
+  group.className = "staff-ticker__group";
 
   if (isDuplicate) {
-    group.classList.add("duplicate");
+    group.classList.add(
+      "staff-ticker__group--duplicate"
+    );
+
     group.setAttribute("aria-hidden", "true");
   }
 
   tickerItems.forEach((item) => {
-    const tickerItem = document.createElement("span");
-    const label = document.createElement("strong");
-    const text = document.createElement("span");
-    const separator = document.createElement("i");
-
-    tickerItem.className = `ticker-item ${item.type}`;
-    label.textContent = item.label;
-    text.textContent = item.text;
-    separator.textContent = "•";
-    separator.setAttribute("aria-hidden", "true");
-
-    tickerItem.append(label, text, separator);
-    group.appendChild(tickerItem);
+    group.appendChild(
+      createTickerItem(item)
+    );
   });
 
   return group;
@@ -162,20 +169,22 @@ function renderTicker() {
   );
 
   window.requestAnimationFrame(() => {
-    const firstGroup = tickerTrack.firstElementChild;
+    const firstGroup =
+      tickerTrack.querySelector(
+        ".staff-ticker__group"
+      );
 
     if (!firstGroup) {
       return;
     }
 
     /*
-      The ticker aims for approximately 75 pixels per second.
-      Longer messages therefore receive a longer duration.
+      Approximately 75 pixels per second.
     */
 
     const duration = Math.max(
       firstGroup.scrollWidth / 75,
-      30
+      32
     );
 
     tickerTrack.style.setProperty(
@@ -186,15 +195,17 @@ function renderTicker() {
 }
 
 function setTickerPaused(isPaused) {
-  if (!ticker || !tickerButton) {
+  if (!staffTicker || !tickerButton) {
     return;
   }
 
-  ticker.classList.toggle("paused", isPaused);
+  staffTicker.classList.toggle(
+    "is-paused",
+    isPaused
+  );
 
-  tickerButton.textContent = isPaused
-    ? "Play"
-    : "Pause";
+  tickerButton.textContent =
+    isPaused ? "Play" : "Pause";
 
   tickerButton.setAttribute(
     "aria-pressed",
@@ -211,13 +222,12 @@ function setTickerPaused(isPaused) {
 
 renderTicker();
 
-if (tickerButton) {
-  tickerButton.addEventListener("click", () => {
-    const isPaused = ticker?.classList.contains("paused");
+tickerButton?.addEventListener("click", () => {
+  const isPaused =
+    staffTicker.classList.contains("is-paused");
 
-    setTickerPaused(!isPaused);
-  });
-}
+  setTickerPaused(!isPaused);
+});
 
 if (reducedMotion.matches) {
   setTickerPaused(true);
@@ -227,49 +237,36 @@ if (reducedMotion.matches) {
   }
 }
 
-/* Pause animation when the browser tab is not visible */
+/* Prototype links */
 
-document.addEventListener("visibilitychange", () => {
-  if (!ticker || reducedMotion.matches) {
-    return;
-  }
-
-  if (document.hidden) {
-    ticker.classList.add("paused");
-  }
-});
-
-/* =========================================================
-   PROTOTYPE LINK MESSAGE
-   ========================================================= */
-
-const toast = select("#toast");
-const toastClose = select("#toastClose");
+const prototypeToast = select("#prototypeToast");
+const closePrototypeToast = select(
+  "#closePrototypeToast"
+);
 
 let toastTimer;
 
-function closeToast() {
-  if (!toast) {
+function hidePrototypeMessage() {
+  if (!prototypeToast) {
     return;
   }
 
-  toast.hidden = true;
-
+  prototypeToast.hidden = true;
   window.clearTimeout(toastTimer);
 }
 
 function showPrototypeMessage() {
-  if (!toast) {
+  if (!prototypeToast) {
     return;
   }
 
-  toast.hidden = false;
-
+  prototypeToast.hidden = false;
   window.clearTimeout(toastTimer);
 
-  toastTimer = window.setTimeout(() => {
-    closeToast();
-  }, 6000);
+  toastTimer = window.setTimeout(
+    hidePrototypeMessage,
+    6000
+  );
 }
 
 selectAll("[data-demo]").forEach((link) => {
@@ -279,46 +276,33 @@ selectAll("[data-demo]").forEach((link) => {
   });
 });
 
-if (toastClose) {
-  toastClose.addEventListener("click", closeToast);
-}
+closePrototypeToast?.addEventListener(
+  "click",
+  hidePrototypeMessage
+);
 
-document.addEventListener("keydown", (event) => {
-  if (
-    event.key === "Escape" &&
-    toast &&
-    !toast.hidden
-  ) {
-    closeToast();
-  }
-});
-
-/* =========================================================
-   RESOURCE CAROUSEL
-   ========================================================= */
+/* Resource carousel */
 
 const resourceTrack = select("#resourceTrack");
-const resourceCards = selectAll(".resource");
-const previousButton = select("#prev");
-const nextButton = select("#next");
-const resourceCounter = select("#counter");
-const autoplayButton = select("#autoplay");
+const resourceCards = selectAll(".resource-card");
+const previousButton = select("#resourcePrevious");
+const nextButton = select("#resourceNext");
+const counter = select("#resourceCounter");
+const autoplayButton = select("#resourceAutoplay");
 
 let resourceTimer;
-let autoplayManuallyPaused = false;
-let interactionPaused = false;
+let manualPause = false;
+let interactionPause = false;
 
-function getResourceDistance() {
-  const firstCard = resourceCards[0];
-
-  if (!firstCard) {
-    return 328;
-  }
-
-  return firstCard.getBoundingClientRect().width + 18;
+function cardDistance() {
+  return (
+    resourceCards[0]
+      ?.getBoundingClientRect()
+      .width + 18 || 328
+  );
 }
 
-function getCurrentResourceIndex() {
+function currentCardIndex() {
   if (!resourceTrack) {
     return 0;
   }
@@ -328,244 +312,165 @@ function getCurrentResourceIndex() {
     Math.min(
       resourceCards.length - 1,
       Math.round(
-        resourceTrack.scrollLeft / getResourceDistance()
+        resourceTrack.scrollLeft /
+        cardDistance()
       )
     )
   );
 }
 
-function updateResourceCounter() {
-  if (!resourceCounter) {
+function updateCounter() {
+  if (!counter) {
     return;
   }
 
   const current = String(
-    getCurrentResourceIndex() + 1
+    currentCardIndex() + 1
   ).padStart(2, "0");
 
   const total = String(
     resourceCards.length
   ).padStart(2, "0");
 
-  resourceCounter.textContent = `${current} / ${total}`;
+  counter.textContent = `${current} / ${total}`;
 }
 
 function moveResources(direction) {
-  if (!resourceTrack) {
-    return;
-  }
-
-  resourceTrack.scrollBy({
-    left: getResourceDistance() * direction,
+  resourceTrack?.scrollBy({
+    left: cardDistance() * direction,
     behavior: "smooth"
   });
 }
 
-function moveToNextResource() {
+function moveNext() {
   if (!resourceTrack) {
     return;
   }
 
-  const maximumScroll =
+  const maximum =
     resourceTrack.scrollWidth -
     resourceTrack.clientWidth;
 
-  const isAtEnd =
-    resourceTrack.scrollLeft >= maximumScroll - 8;
-
-  if (isAtEnd) {
+  if (resourceTrack.scrollLeft >= maximum - 8) {
     resourceTrack.scrollTo({
       left: 0,
       behavior: "smooth"
     });
-
-    return;
+  } else {
+    moveResources(1);
   }
-
-  moveResources(1);
 }
 
-function stopResourceAutoplay() {
+function stopAutoplay() {
   window.clearInterval(resourceTimer);
   resourceTimer = null;
 }
 
-function startResourceAutoplay() {
-  stopResourceAutoplay();
+function startAutoplay() {
+  stopAutoplay();
 
   if (
     reducedMotion.matches ||
-    autoplayManuallyPaused ||
-    interactionPaused ||
+    manualPause ||
+    interactionPause ||
     document.hidden
   ) {
     return;
   }
 
-  resourceTimer = window.setInterval(() => {
-    moveToNextResource();
-  }, 5000);
+  resourceTimer = window.setInterval(
+    moveNext,
+    5000
+  );
 }
 
-function pauseForInteraction() {
-  interactionPaused = true;
-  stopResourceAutoplay();
-}
+previousButton?.addEventListener("click", () => {
+  moveResources(-1);
+  startAutoplay();
+});
 
-function resumeAfterInteraction() {
-  interactionPaused = false;
-  startResourceAutoplay();
-}
+nextButton?.addEventListener("click", () => {
+  moveNext();
+  startAutoplay();
+});
 
-if (
-  resourceTrack &&
-  previousButton &&
-  nextButton
-) {
-  previousButton.addEventListener("click", () => {
-    moveResources(-1);
-    startResourceAutoplay();
-  });
+resourceTrack?.addEventListener(
+  "scroll",
+  updateCounter,
+  { passive: true }
+);
 
-  nextButton.addEventListener("click", () => {
-    moveToNextResource();
-    startResourceAutoplay();
-  });
+resourceTrack?.addEventListener(
+  "mouseenter",
+  () => {
+    interactionPause = true;
+    stopAutoplay();
+  }
+);
 
-  resourceTrack.addEventListener(
-    "scroll",
-    updateResourceCounter,
-    { passive: true }
-  );
+resourceTrack?.addEventListener(
+  "mouseleave",
+  () => {
+    interactionPause = false;
+    startAutoplay();
+  }
+);
 
-  resourceTrack.addEventListener(
-    "mouseenter",
-    pauseForInteraction
-  );
+resourceTrack?.addEventListener(
+  "focusin",
+  () => {
+    interactionPause = true;
+    stopAutoplay();
+  }
+);
 
-  resourceTrack.addEventListener(
-    "mouseleave",
-    resumeAfterInteraction
-  );
-
-  resourceTrack.addEventListener(
-    "focusin",
-    pauseForInteraction
-  );
-
-  resourceTrack.addEventListener(
-    "focusout",
-    (event) => {
-      if (!resourceTrack.contains(event.relatedTarget)) {
-        resumeAfterInteraction();
-      }
+resourceTrack?.addEventListener(
+  "focusout",
+  (event) => {
+    if (
+      !resourceTrack.contains(
+        event.relatedTarget
+      )
+    ) {
+      interactionPause = false;
+      startAutoplay();
     }
+  }
+);
+
+autoplayButton?.addEventListener("click", () => {
+  manualPause = !manualPause;
+
+  autoplayButton.textContent = manualPause
+    ? "Resume automatic movement"
+    : "Pause automatic movement";
+
+  autoplayButton.setAttribute(
+    "aria-pressed",
+    String(manualPause)
   );
 
-  resourceTrack.addEventListener(
-    "pointerdown",
-    pauseForInteraction,
-    { passive: true }
-  );
-
-  resourceTrack.addEventListener(
-    "pointerup",
-    () => {
-      window.setTimeout(() => {
-        resumeAfterInteraction();
-      }, 1000);
-    },
-    { passive: true }
-  );
-
-  resourceTrack.addEventListener(
-    "keydown",
-    (event) => {
-      if (event.key === "ArrowRight") {
-        event.preventDefault();
-        moveResources(1);
-      }
-
-      if (event.key === "ArrowLeft") {
-        event.preventDefault();
-        moveResources(-1);
-      }
-
-      if (event.key === "Home") {
-        event.preventDefault();
-
-        resourceTrack.scrollTo({
-          left: 0,
-          behavior: "smooth"
-        });
-      }
-
-      if (event.key === "End") {
-        event.preventDefault();
-
-        resourceTrack.scrollTo({
-          left: resourceTrack.scrollWidth,
-          behavior: "smooth"
-        });
-      }
-    }
-  );
-
-  updateResourceCounter();
-  startResourceAutoplay();
-}
-
-if (autoplayButton) {
-  autoplayButton.addEventListener("click", () => {
-    autoplayManuallyPaused =
-      !autoplayManuallyPaused;
-
-    autoplayButton.textContent =
-      autoplayManuallyPaused
-        ? "Resume automatic movement"
-        : "Pause automatic movement";
-
-    autoplayButton.setAttribute(
-      "aria-pressed",
-      String(autoplayManuallyPaused)
-    );
-
-    if (autoplayManuallyPaused) {
-      stopResourceAutoplay();
-    } else {
-      startResourceAutoplay();
-    }
-  });
-}
-
-if (reducedMotion.matches && autoplayButton) {
-  autoplayButton.hidden = true;
-  stopResourceAutoplay();
-}
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    stopResourceAutoplay();
+  if (manualPause) {
+    stopAutoplay();
   } else {
-    startResourceAutoplay();
+    startAutoplay();
   }
 });
 
-/* =========================================================
-   RESOURCE SEARCH
-   ========================================================= */
+if (reducedMotion.matches && autoplayButton) {
+  autoplayButton.hidden = true;
+}
+
+updateCounter();
+startAutoplay();
+
+/* Resource search */
 
 const searchForm = select("#searchForm");
 const searchInput = select("#searchInput");
 const searchStatus = select("#searchStatus");
 
-function clearSearchMatches() {
-  resourceCards.forEach((card) => {
-    card.classList.remove("match");
-  });
-}
-
-function normaliseSearchText(value) {
+function normalise(value) {
   return value
     .toLowerCase()
     .replace(/&/g, "and")
@@ -574,98 +479,84 @@ function normaliseSearchText(value) {
     .trim();
 }
 
-function findResourceMatches(query) {
-  const words = normaliseSearchText(query)
+function clearMatches() {
+  resourceCards.forEach((card) => {
+    card.classList.remove("is-match");
+  });
+}
+
+searchForm?.addEventListener("submit", (event) => {
+  event.preventDefault();
+  clearMatches();
+
+  const query = searchInput.value.trim();
+
+  if (!query) {
+    searchStatus.textContent =
+      "Enter a word or phrase.";
+
+    searchInput.focus();
+    return;
+  }
+
+  const words = normalise(query)
     .split(" ")
     .filter(Boolean);
 
-  return resourceCards.filter((card) => {
-    const visibleText = card.textContent || "";
-    const keywords = card.dataset.keywords || "";
-
-    const searchableText = normaliseSearchText(
-      `${visibleText} ${keywords}`
+  const matches = resourceCards.filter((card) => {
+    const cardText = normalise(
+      `${card.textContent} ${card.dataset.keywords || ""}`
     );
 
     return words.every((word) => {
-      return searchableText.includes(word);
+      return cardText.includes(word);
     });
   });
-}
 
-if (
-  searchForm &&
-  searchInput &&
-  searchStatus &&
-  resourceTrack
-) {
-  searchForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-
-    clearSearchMatches();
-
-    const query = searchInput.value.trim();
-
-    if (!query) {
-      searchStatus.textContent =
-        "Enter a word or phrase.";
-
-      searchInput.focus();
-      return;
-    }
-
-    const matches = findResourceMatches(query);
-
-    if (matches.length === 0) {
-      searchStatus.textContent =
-        `No resources found for “${query}”.`;
-
-      return;
-    }
-
+  if (matches.length === 0) {
     searchStatus.textContent =
-      `${matches.length} resource` +
-      `${matches.length > 1 ? "s" : ""} found.`;
+      `No resources found for “${query}”.`;
 
-    matches.forEach((card) => {
-      card.classList.add("match");
-    });
+    return;
+  }
 
-    const firstMatch = matches[0];
+  searchStatus.textContent =
+    `${matches.length} resource` +
+    `${matches.length === 1 ? "" : "s"} found.`;
 
-    resourceTrack.scrollTo({
-      left:
-        firstMatch.offsetLeft -
-        resourceTrack.offsetLeft,
-      behavior: "smooth"
-    });
-
-    select("#resources")?.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-
-    window.setTimeout(() => {
-      firstMatch.focus({
-        preventScroll: true
-      });
-    }, 400);
+  matches.forEach((card) => {
+    card.classList.add("is-match");
   });
 
-  searchInput.addEventListener("input", () => {
-    clearSearchMatches();
-    searchStatus.textContent = "";
+  resourceTrack.scrollTo({
+    left:
+      matches[0].offsetLeft -
+      resourceTrack.offsetLeft,
+    behavior: "smooth"
   });
-}
 
-/* =========================================================
-   FOOTER YEAR
-   ========================================================= */
+  select("#resources")?.scrollIntoView({
+    behavior: "smooth",
+    block: "start"
+  });
 
-const year = select("#year");
+  window.setTimeout(() => {
+    matches[0].focus({
+      preventScroll: true
+    });
+  }, 400);
+});
 
-if (year) {
-  year.textContent = String(
-    new Date().getFullYear()
-  );
+searchInput?.addEventListener("input", () => {
+  clearMatches();
+  searchStatus.textContent = "";
+});
+
+/* Footer year */
+
+const currentYear = select("#currentYear");
+
+if (currentYear) {
+  currentYear.textContent =
+    new Date().getFullYear();
 }
