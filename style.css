@@ -16,6 +16,10 @@
   --transition: 220ms ease;
 }
 
+/* =========================================================
+   RESET AND GLOBAL STYLES
+   ========================================================= */
+
 *,
 *::before,
 *::after {
@@ -109,7 +113,9 @@ input:focus-visible,
   outline-offset: 4px;
 }
 
-/* Shared elements */
+/* =========================================================
+   SHARED ELEMENTS
+   ========================================================= */
 
 .kicker {
   display: inline-flex;
@@ -125,6 +131,7 @@ input:focus-visible,
 .kicker::before {
   width: 26px;
   height: 3px;
+  flex: 0 0 auto;
   background: currentColor;
   content: "";
 }
@@ -183,7 +190,9 @@ input:focus-visible,
   content: "";
 }
 
-/* Prototype banner */
+/* =========================================================
+   PROTOTYPE BANNER
+   ========================================================= */
 
 .prototype {
   display: flex;
@@ -198,7 +207,9 @@ input:focus-visible,
   text-transform: uppercase;
 }
 
-/* Utility navigation */
+/* =========================================================
+   UTILITY NAVIGATION
+   ========================================================= */
 
 .utility {
   background: var(--stoke-black);
@@ -228,7 +239,9 @@ input:focus-visible,
   background: rgba(255, 255, 255, 0.1);
 }
 
-/* Main header */
+/* =========================================================
+   MAIN HEADER
+   ========================================================= */
 
 .header {
   position: sticky;
@@ -299,7 +312,9 @@ input:focus-visible,
   font-weight: 700;
 }
 
-/* Hero */
+/* =========================================================
+   HERO
+   ========================================================= */
 
 .hero {
   overflow: hidden;
@@ -381,11 +396,14 @@ input:focus-visible,
   color: rgba(255, 255, 255, 0.75);
 }
 
-/* Ticker */
+/* =========================================================
+   STAFF UPDATES AND RESULTS TICKER
+   ========================================================= */
 
 .ticker {
+  position: relative;
   display: grid;
-  min-height: 60px;
+  min-height: 64px;
   grid-template-columns: auto minmax(0, 1fr) auto;
   overflow: hidden;
   border-top: 4px solid var(--gold);
@@ -393,94 +411,224 @@ input:focus-visible,
   color: var(--stoke-white);
 }
 
+/* Fixed red Staff Updates label */
+
 .ticker__label {
+  position: relative;
+  z-index: 4;
   display: flex;
+  min-width: 190px;
+  min-height: 60px;
   align-items: center;
-  gap: 10px;
+  gap: 11px;
   padding: 0 24px;
   background: var(--stoke-red);
-  font-size: 0.8rem;
+  box-shadow: 14px 0 20px rgba(2, 10, 10, 0.34);
+  font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.1em;
+  white-space: nowrap;
   text-transform: uppercase;
 }
 
-.ticker__label span {
+/* Gold live indicator */
+
+.ticker__label > span {
   width: 9px;
   height: 9px;
+  flex: 0 0 auto;
   border-radius: 50%;
   background: var(--gold);
+  box-shadow: 0 0 0 5px rgba(245, 199, 84, 0.16);
 }
 
+/* Broadcast-style pointed edge */
+
+.ticker__label::after {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  right: -18px;
+  width: 19px;
+  height: 100%;
+  background: var(--stoke-red);
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  content: "";
+}
+
+/* Moving-content viewport */
+
 .ticker__viewport {
+  position: relative;
+  z-index: 1;
+  min-width: 0;
   overflow: hidden;
 }
+
+/* Fade text in and out at the viewport edges */
+
+.ticker__viewport::before,
+.ticker__viewport::after {
+  position: absolute;
+  z-index: 3;
+  top: 0;
+  bottom: 0;
+  width: 36px;
+  pointer-events: none;
+  content: "";
+}
+
+.ticker__viewport::before {
+  left: 0;
+  background: linear-gradient(
+    to right,
+    var(--stoke-black),
+    rgba(2, 10, 10, 0)
+  );
+}
+
+.ticker__viewport::after {
+  right: 0;
+  background: linear-gradient(
+    to left,
+    var(--stoke-black),
+    rgba(2, 10, 10, 0)
+  );
+}
+
+/* Complete moving ticker strip */
 
 .ticker__track {
   display: flex;
   width: max-content;
   min-height: 60px;
   align-items: center;
-  animation: ticker-scroll var(--ticker-duration, 50s) linear infinite;
+  animation:
+    ticker-scroll var(--ticker-duration, 52s)
+    linear
+    infinite;
+  will-change: transform;
 }
 
-.ticker.is-paused .ticker__track,
+/* Each copy of the repeating sequence */
+
+.ticker__group {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  padding-right: 38px;
+}
+
+/* Individual result or notice */
+
+.ticker__item {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 13px;
+  min-height: 60px;
+  padding-left: 32px;
+  white-space: nowrap;
+}
+
+/* Result and notice labels */
+
+.ticker__item > strong {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border: 1px solid rgba(245, 199, 84, 0.7);
+  color: var(--gold);
+  font-size: 0.69rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  white-space: nowrap;
+  text-transform: uppercase;
+}
+
+/* Staff notices have a solid red label */
+
+.ticker__item--notice > strong {
+  border-color: var(--stoke-red);
+  background: var(--stoke-red);
+  color: var(--stoke-white);
+}
+
+/* Result or notice wording */
+
+.ticker__item > span:not(.ticker__separator) {
+  display: inline-block;
+  color: var(--stoke-white);
+  font-size: 0.96rem;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* Gold divider between entries */
+
+.ticker__separator {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 17px;
+  color: var(--gold);
+  font-size: 1.25rem;
+  line-height: 1;
+}
+
+/* Pause and play control */
+
+.ticker__button {
+  position: relative;
+  z-index: 4;
+  min-width: 94px;
+  min-height: 60px;
+  padding: 0 18px;
+  border: 0;
+  border-left: 1px solid rgba(255, 255, 255, 0.2);
+  background: #0a1515;
+  color: var(--stoke-white);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.ticker__button:hover,
+.ticker__button:focus-visible {
+  background: var(--gold);
+  color: var(--stoke-black);
+}
+
+/* User-controlled pause */
+
+.ticker.is-paused .ticker__track {
+  animation-play-state: paused;
+}
+
+/* Pause temporarily while hovering or using keyboard focus */
+
 .ticker:hover .ticker__track,
 .ticker:focus-within .ticker__track {
   animation-play-state: paused;
 }
 
-.ticker__group {
-  display: flex;
-  align-items: center;
-}
-
-.ticker__item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding-left: 34px;
-  white-space: nowrap;
-}
-
-.ticker__item strong {
-  color: var(--gold);
-  font-size: 0.72rem;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.ticker__item--notice strong {
-  padding: 4px 8px;
-  background: var(--stoke-red);
-  color: var(--stoke-white);
-}
-
-.ticker__separator {
-  margin-left: 24px;
-  color: var(--gold);
-}
-
-.ticker__button {
-  padding: 0 20px;
-  border: 0;
-  border-left: 1px solid rgba(255, 255, 255, 0.17);
-  background: #0a1515;
-  color: var(--stoke-white);
-  font-weight: 700;
-}
-
 @keyframes ticker-scroll {
   from {
-    transform: translateX(0);
+    transform: translate3d(0, 0, 0);
   }
 
   to {
-    transform: translateX(-50%);
+    transform: translate3d(-50%, 0, 0);
   }
 }
 
-/* Search and quick actions */
+/* =========================================================
+   SEARCH AND QUICK ACTIONS
+   ========================================================= */
 
 .task-zone {
   padding: 55px 0 75px;
@@ -570,7 +718,9 @@ input:focus-visible,
   color: var(--stoke-white);
 }
 
-/* Shared section headings */
+/* =========================================================
+   SHARED SECTION HEADINGS
+   ========================================================= */
 
 .section {
   padding: 95px 0;
@@ -599,7 +749,9 @@ input:focus-visible,
   color: var(--stoke-white);
 }
 
-/* News */
+/* =========================================================
+   NEWS
+   ========================================================= */
 
 .news-section {
   background: var(--stoke-black);
@@ -730,7 +882,9 @@ input:focus-visible,
   line-height: 1.15;
 }
 
-/* Resources */
+/* =========================================================
+   RESOURCES
+   ========================================================= */
 
 .resource-controls {
   display: flex;
@@ -764,6 +918,20 @@ input:focus-visible,
   overflow-x: auto;
   scroll-behavior: smooth;
   scroll-snap-type: x mandatory;
+  scrollbar-color: var(--stoke-red) rgba(2, 10, 10, 0.08);
+  scrollbar-width: thin;
+}
+
+.resource-track::-webkit-scrollbar {
+  height: 9px;
+}
+
+.resource-track::-webkit-scrollbar-track {
+  background: rgba(2, 10, 10, 0.08);
+}
+
+.resource-track::-webkit-scrollbar-thumb {
+  background: var(--stoke-red);
 }
 
 .resource-card {
@@ -875,7 +1043,9 @@ input:focus-visible,
   color: var(--stoke-white);
 }
 
-/* Departments */
+/* =========================================================
+   DEPARTMENTS
+   ========================================================= */
 
 .departments-section {
   background: var(--stoke-white);
@@ -928,7 +1098,9 @@ input:focus-visible,
   color: var(--stoke-red);
 }
 
-/* Careers and key dates */
+/* =========================================================
+   CAREERS AND KEY DATES
+   ========================================================= */
 
 .opportunities-section {
   padding: 86px 0;
@@ -1151,7 +1323,9 @@ input:focus-visible,
   font-size: 0.9rem;
 }
 
-/* Footer */
+/* =========================================================
+   FOOTER
+   ========================================================= */
 
 .site-footer {
   background: var(--stoke-black);
@@ -1209,7 +1383,9 @@ input:focus-visible,
   color: rgba(255, 255, 255, 0.62);
 }
 
-/* Prototype message */
+/* =========================================================
+   PROTOTYPE MESSAGE
+   ========================================================= */
 
 .prototype-toast {
   position: fixed;
@@ -1247,7 +1423,9 @@ input:focus-visible,
   text-decoration: underline;
 }
 
-/* Tablet */
+/* =========================================================
+   TABLET
+   ========================================================= */
 
 @media (max-width: 950px) {
   .hero__layout,
@@ -1284,7 +1462,9 @@ input:focus-visible,
   }
 }
 
-/* Mobile */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
 @media (max-width: 740px) {
   body {
@@ -1367,20 +1547,83 @@ input:focus-visible,
     min-height: 360px;
   }
 
+  /* Mobile ticker */
+
   .ticker {
-    grid-template-columns: auto 1fr;
+    min-height: 58px;
+    grid-template-columns: 122px minmax(0, 1fr) 52px;
   }
 
   .ticker__label {
-    padding: 0 12px;
-    font-size: 0.66rem;
+    min-width: 122px;
+    min-height: 58px;
+    gap: 8px;
+    padding: 0 11px;
+    box-shadow: 8px 0 14px rgba(2, 10, 10, 0.34);
+    font-size: 0.64rem;
+    letter-spacing: 0.07em;
+  }
+
+  .ticker__label > span {
+    width: 7px;
+    height: 7px;
+    box-shadow: 0 0 0 3px rgba(245, 199, 84, 0.16);
+  }
+
+  .ticker__label::after {
+    right: -12px;
+    width: 13px;
+  }
+
+  .ticker__viewport::before,
+  .ticker__viewport::after {
+    width: 24px;
+  }
+
+  .ticker__track {
+    min-height: 58px;
+  }
+
+  .ticker__group {
+    padding-right: 28px;
+  }
+
+  .ticker__item {
+    min-height: 58px;
+    gap: 10px;
+    padding-left: 23px;
+  }
+
+  .ticker__item > strong {
+    min-height: 25px;
+    padding: 4px 7px;
+    font-size: 0.62rem;
+  }
+
+  .ticker__item > span:not(.ticker__separator) {
+    font-size: 0.88rem;
+  }
+
+  .ticker__separator {
+    margin-left: 10px;
   }
 
   .ticker__button {
-    grid-column: 1 / -1;
-    min-height: 40px;
-    border-top: 1px solid rgba(255, 255, 255, 0.17);
-    border-left: 0;
+    min-width: 52px;
+    min-height: 58px;
+    padding: 0 7px;
+    border-top: 0;
+    font-size: 0;
+  }
+
+  .ticker__button::before {
+    color: currentColor;
+    font-size: 1rem;
+    content: "Ⅱ";
+  }
+
+  .ticker.is-paused .ticker__button::before {
+    content: "▶";
   }
 
   .resource-search {
@@ -1497,7 +1740,9 @@ input:focus-visible,
   }
 }
 
-/* Reduced motion */
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
 
 @media (prefers-reduced-motion: reduce) {
   html {
@@ -1514,6 +1759,8 @@ input:focus-visible,
   }
 
   .ticker__track {
+    width: 100%;
+    overflow-x: auto;
     animation: none !important;
   }
 
