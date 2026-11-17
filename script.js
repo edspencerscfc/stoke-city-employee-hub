@@ -3,12 +3,11 @@
 /* =========================================================
    EDITABLE TICKER CONTENT
 
-   Update this array whenever a result or staff notice changes.
-   The ticker is generated automatically from these entries.
+   Update these entries when results or staff notices change.
 
-   Types:
-   - "result"
-   - "notice"
+   Available types:
+   - result
+   - notice
    ========================================================= */
 
 const tickerItems = [
@@ -29,13 +28,8 @@ const tickerItems = [
   },
   {
     type: "notice",
-    label: "Staff Notice",
+    label: "Staff notice",
     text: "Planned system maintenance this Friday from 6pm"
-  },
-  {
-    type: "notice",
-    label: "Reminder",
-    text: "Complete mandatory staff training by 4 December"
   },
   {
     type: "notice",
@@ -44,153 +38,77 @@ const tickerItems = [
   },
   {
     type: "notice",
+    label: "Learning",
+    text: "Complete mandatory staff training by 4 December"
+  },
+  {
+    type: "notice",
     label: "Finance",
-    text: "Submit December expense claims by 15 December"
+    text: "Submit December expenses by 15 December"
   }
 ];
 
 /* =========================================================
-   ELEMENT REFERENCES
+   HELPERS
    ========================================================= */
 
-const menuButton = document.getElementById("menuButton");
-const menuButtonLabel = menuButton?.querySelector(
-  ".menu-button__label"
-);
-const mainNavigation = document.getElementById("mainNavigation");
+const select = (selector) => document.querySelector(selector);
 
-const ticker = document.querySelector(".ticker");
-const tickerTrack = document.getElementById("tickerTrack");
-const tickerViewport = document.getElementById("tickerViewport");
-const tickerControl = document.getElementById("tickerControl");
-const tickerControlText = tickerControl?.querySelector(
-  ".ticker__control-text"
-);
+const selectAll = (selector) => [
+  ...document.querySelectorAll(selector)
+];
 
-const searchForm = document.getElementById("searchForm");
-const hubSearch = document.getElementById("hubSearch");
-const searchStatus = document.getElementById("searchStatus");
-
-const quickLinksTrack = document.getElementById("quickLinksTrack");
-const quickLinksPrevious = document.getElementById(
-  "quickLinksPrevious"
-);
-const quickLinksNext = document.getElementById("quickLinksNext");
-const resourceAutoplay = document.getElementById(
-  "resourceAutoplay"
-);
-const resourceCurrent = document.getElementById("resourceCurrent");
-const resourceTotal = document.getElementById("resourceTotal");
-
-const prototypeToast = document.getElementById("prototypeToast");
-const prototypeToastMessage = document.getElementById(
-  "prototypeToastMessage"
-);
-const closePrototypeToast = document.getElementById(
-  "closePrototypeToast"
-);
-
-const currentYear = document.getElementById("currentYear");
-
-const reducedMotionQuery = window.matchMedia(
+const reducedMotion = window.matchMedia(
   "(prefers-reduced-motion: reduce)"
 );
-
-let toastTimer = null;
-let resourceTimer = null;
-let resourceAutoplayPaused = false;
-let resourceInteractionPaused = false;
 
 /* =========================================================
    MOBILE NAVIGATION
    ========================================================= */
 
-function isMobileNavigation() {
-  return window.matchMedia("(max-width: 740px)").matches;
-}
-
-function openMenu() {
-  if (!menuButton || !mainNavigation) {
-    return;
-  }
-
-  mainNavigation.classList.add("is-open");
-  menuButton.setAttribute("aria-expanded", "true");
-  document.body.classList.add("menu-open");
-
-  if (menuButtonLabel) {
-    menuButtonLabel.textContent = "Close";
-  }
-}
+const menuButton = select("#menuBtn");
+const navigation = select("#nav");
 
 function closeMenu(returnFocus = false) {
-  if (!menuButton || !mainNavigation) {
+  if (!menuButton || !navigation) {
     return;
   }
 
-  mainNavigation.classList.remove("is-open");
+  navigation.classList.remove("open");
   menuButton.setAttribute("aria-expanded", "false");
-  document.body.classList.remove("menu-open");
-
-  if (menuButtonLabel) {
-    menuButtonLabel.textContent = "Menu";
-  }
+  document.body.classList.remove("lock");
 
   if (returnFocus) {
     menuButton.focus();
   }
 }
 
-function toggleMenu() {
-  const isOpen =
-    menuButton?.getAttribute("aria-expanded") === "true";
+if (menuButton && navigation) {
+  menuButton.addEventListener("click", () => {
+    const isOpen = navigation.classList.toggle("open");
 
-  if (isOpen) {
-    closeMenu();
-  } else {
-    openMenu();
-  }
-}
+    menuButton.setAttribute(
+      "aria-expanded",
+      String(isOpen)
+    );
 
-if (menuButton && mainNavigation) {
-  menuButton.addEventListener("click", toggleMenu);
-
-  mainNavigation.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      if (isMobileNavigation()) {
-        closeMenu();
-      }
-    });
+    document.body.classList.toggle("lock", isOpen);
   });
 
-  document.addEventListener("keydown", (event) => {
-    if (
-      event.key === "Escape" &&
-      menuButton.getAttribute("aria-expanded") === "true"
-    ) {
-      closeMenu(true);
-    }
-  });
-
-  document.addEventListener("click", (event) => {
-    if (!isMobileNavigation()) {
-      return;
-    }
-
-    const menuIsOpen =
-      menuButton.getAttribute("aria-expanded") === "true";
-
-    if (
-      menuIsOpen &&
-      !mainNavigation.contains(event.target) &&
-      !menuButton.contains(event.target)
-    ) {
+  navigation.addEventListener("click", (event) => {
+    if (event.target.tagName === "A") {
       closeMenu();
     }
   });
 
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeMenu(true);
+    }
+  });
+
   window.addEventListener("resize", () => {
-    if (!isMobileNavigation()) {
+    if (window.innerWidth > 740) {
       closeMenu();
     }
   });
@@ -200,39 +118,34 @@ if (menuButton && mainNavigation) {
    MOVING STAFF TICKER
    ========================================================= */
 
-function createTickerItem(item) {
-  const tickerItem = document.createElement("span");
-  tickerItem.className = `ticker__item ticker__item--${item.type}`;
-
-  const badge = document.createElement("strong");
-  badge.className = "ticker__badge";
-  badge.textContent = item.label;
-
-  const text = document.createElement("span");
-  text.className = "ticker__text";
-  text.textContent = item.text;
-
-  const separator = document.createElement("span");
-  separator.className = "ticker__separator";
-  separator.setAttribute("aria-hidden", "true");
-  separator.textContent = "•";
-
-  tickerItem.append(badge, text, separator);
-
-  return tickerItem;
-}
+const ticker = select(".ticker");
+const tickerTrack = select("#tickerTrack");
+const tickerButton = select("#tickerBtn");
 
 function createTickerGroup(isDuplicate = false) {
   const group = document.createElement("div");
-  group.className = "ticker__group";
+
+  group.className = "ticker-group";
 
   if (isDuplicate) {
-    group.classList.add("ticker__group--duplicate");
+    group.classList.add("duplicate");
     group.setAttribute("aria-hidden", "true");
   }
 
   tickerItems.forEach((item) => {
-    group.appendChild(createTickerItem(item));
+    const tickerItem = document.createElement("span");
+    const label = document.createElement("strong");
+    const text = document.createElement("span");
+    const separator = document.createElement("i");
+
+    tickerItem.className = `ticker-item ${item.type}`;
+    label.textContent = item.label;
+    text.textContent = item.text;
+    separator.textContent = "•";
+    separator.setAttribute("aria-hidden", "true");
+
+    tickerItem.append(label, text, separator);
+    group.appendChild(tickerItem);
   });
 
   return group;
@@ -249,17 +162,21 @@ function renderTicker() {
   );
 
   window.requestAnimationFrame(() => {
-    const firstGroup = tickerTrack.querySelector(".ticker__group");
+    const firstGroup = tickerTrack.firstElementChild;
 
     if (!firstGroup) {
       return;
     }
 
     /*
-      Roughly 75 pixels per second creates a steady news-style
-      movement without racing through the messages.
+      The ticker aims for approximately 75 pixels per second.
+      Longer messages therefore receive a longer duration.
     */
-    const duration = Math.max(firstGroup.scrollWidth / 75, 30);
+
+    const duration = Math.max(
+      firstGroup.scrollWidth / 75,
+      30
+    );
 
     tickerTrack.style.setProperty(
       "--ticker-duration",
@@ -269,366 +186,361 @@ function renderTicker() {
 }
 
 function setTickerPaused(isPaused) {
-  if (!ticker || !tickerControl || !tickerControlText) {
+  if (!ticker || !tickerButton) {
     return;
   }
 
-  ticker.classList.toggle("is-paused", isPaused);
-  tickerControl.setAttribute("aria-pressed", String(isPaused));
-  tickerControl.setAttribute(
-    "aria-label",
-    isPaused ? "Play staff updates" : "Pause staff updates"
-  );
-  tickerControlText.textContent = isPaused ? "Play" : "Pause";
-}
+  ticker.classList.toggle("paused", isPaused);
 
-function toggleTicker() {
-  const isPaused = ticker?.classList.contains("is-paused");
-  setTickerPaused(!isPaused);
+  tickerButton.textContent = isPaused
+    ? "Play"
+    : "Pause";
+
+  tickerButton.setAttribute(
+    "aria-pressed",
+    String(isPaused)
+  );
+
+  tickerButton.setAttribute(
+    "aria-label",
+    isPaused
+      ? "Play staff updates"
+      : "Pause staff updates"
+  );
 }
 
 renderTicker();
 
-if (tickerControl) {
-  tickerControl.addEventListener("click", toggleTicker);
+if (tickerButton) {
+  tickerButton.addEventListener("click", () => {
+    const isPaused = ticker?.classList.contains("paused");
+
+    setTickerPaused(!isPaused);
+  });
 }
 
-if (reducedMotionQuery.matches) {
+if (reducedMotion.matches) {
   setTickerPaused(true);
-  tickerControl?.setAttribute("disabled", "");
+
+  if (tickerButton) {
+    tickerButton.hidden = true;
+  }
 }
+
+/* Pause animation when the browser tab is not visible */
 
 document.addEventListener("visibilitychange", () => {
-  if (!ticker || reducedMotionQuery.matches) {
+  if (!ticker || reducedMotion.matches) {
     return;
   }
 
   if (document.hidden) {
-    ticker.classList.add("ticker--tab-hidden");
-    ticker.classList.add("is-paused");
-  } else if (ticker.classList.contains("ticker--tab-hidden")) {
-    ticker.classList.remove("ticker--tab-hidden");
-    setTickerPaused(false);
+    ticker.classList.add("paused");
   }
 });
 
 /* =========================================================
-   PROTOTYPE LINK MESSAGES
+   PROTOTYPE LINK MESSAGE
    ========================================================= */
 
-function hidePrototypeMessage() {
-  if (!prototypeToast) {
+const toast = select("#toast");
+const toastClose = select("#toastClose");
+
+let toastTimer;
+
+function closeToast() {
+  if (!toast) {
     return;
   }
 
-  prototypeToast.hidden = true;
+  toast.hidden = true;
 
-  if (toastTimer) {
-    window.clearTimeout(toastTimer);
-    toastTimer = null;
-  }
+  window.clearTimeout(toastTimer);
 }
 
-function showPrototypeMessage(message) {
-  if (!prototypeToast || !prototypeToastMessage) {
+function showPrototypeMessage() {
+  if (!toast) {
     return;
   }
 
-  prototypeToastMessage.textContent =
-    message || "This destination has not yet been connected.";
+  toast.hidden = false;
 
-  prototypeToast.hidden = false;
+  window.clearTimeout(toastTimer);
 
-  if (toastTimer) {
-    window.clearTimeout(toastTimer);
-  }
-
-  toastTimer = window.setTimeout(hidePrototypeMessage, 7000);
+  toastTimer = window.setTimeout(() => {
+    closeToast();
+  }, 6000);
 }
 
-document.querySelectorAll(".prototype-link").forEach((link) => {
+selectAll("[data-demo]").forEach((link) => {
   link.addEventListener("click", (event) => {
-    const href = link.getAttribute("href");
-
-    if (!href || href === "#") {
-      event.preventDefault();
-
-      showPrototypeMessage(
-        link.dataset.prototypeMessage ||
-          "This destination has not yet been connected."
-      );
-    }
+    event.preventDefault();
+    showPrototypeMessage();
   });
 });
 
-closePrototypeToast?.addEventListener(
-  "click",
-  hidePrototypeMessage
-);
+if (toastClose) {
+  toastClose.addEventListener("click", closeToast);
+}
 
 document.addEventListener("keydown", (event) => {
   if (
     event.key === "Escape" &&
-    prototypeToast &&
-    !prototypeToast.hidden
+    toast &&
+    !toast.hidden
   ) {
-    hidePrototypeMessage();
+    closeToast();
   }
 });
 
 /* =========================================================
-   QUICK LINKS
+   RESOURCE CAROUSEL
    ========================================================= */
 
-function getResourceCards() {
-  if (!quickLinksTrack) {
-    return [];
+const resourceTrack = select("#resourceTrack");
+const resourceCards = selectAll(".resource");
+const previousButton = select("#prev");
+const nextButton = select("#next");
+const resourceCounter = select("#counter");
+const autoplayButton = select("#autoplay");
+
+let resourceTimer;
+let autoplayManuallyPaused = false;
+let interactionPaused = false;
+
+function getResourceDistance() {
+  const firstCard = resourceCards[0];
+
+  if (!firstCard) {
+    return 328;
   }
 
-  return Array.from(
-    quickLinksTrack.querySelectorAll(".resource-card")
-  );
-}
-
-function getResourceScrollDistance() {
-  const firstCard = getResourceCards()[0];
-
-  if (!firstCard || !quickLinksTrack) {
-    return 320;
-  }
-
-  const trackStyles = window.getComputedStyle(quickLinksTrack);
-  const gap = Number.parseFloat(trackStyles.columnGap) || 18;
-
-  return firstCard.getBoundingClientRect().width + gap;
+  return firstCard.getBoundingClientRect().width + 18;
 }
 
 function getCurrentResourceIndex() {
-  if (!quickLinksTrack) {
+  if (!resourceTrack) {
     return 0;
   }
-
-  const distance = getResourceScrollDistance();
 
   return Math.max(
     0,
     Math.min(
-      getResourceCards().length - 1,
-      Math.round(quickLinksTrack.scrollLeft / distance)
+      resourceCards.length - 1,
+      Math.round(
+        resourceTrack.scrollLeft / getResourceDistance()
+      )
     )
   );
 }
 
-function updateResourceProgress() {
-  const cards = getResourceCards();
-  const currentIndex = getCurrentResourceIndex();
-
-  if (resourceCurrent) {
-    resourceCurrent.textContent = String(
-      currentIndex + 1
-    ).padStart(2, "0");
-  }
-
-  if (resourceTotal) {
-    resourceTotal.textContent = String(
-      cards.length
-    ).padStart(2, "0");
-  }
-}
-
-function scrollResources(direction) {
-  if (!quickLinksTrack) {
+function updateResourceCounter() {
+  if (!resourceCounter) {
     return;
   }
 
-  quickLinksTrack.scrollBy({
-    left: getResourceScrollDistance() * direction,
+  const current = String(
+    getCurrentResourceIndex() + 1
+  ).padStart(2, "0");
+
+  const total = String(
+    resourceCards.length
+  ).padStart(2, "0");
+
+  resourceCounter.textContent = `${current} / ${total}`;
+}
+
+function moveResources(direction) {
+  if (!resourceTrack) {
+    return;
+  }
+
+  resourceTrack.scrollBy({
+    left: getResourceDistance() * direction,
     behavior: "smooth"
   });
 }
 
 function moveToNextResource() {
-  if (!quickLinksTrack) {
+  if (!resourceTrack) {
     return;
   }
 
-  const maxScrollLeft =
-    quickLinksTrack.scrollWidth - quickLinksTrack.clientWidth;
+  const maximumScroll =
+    resourceTrack.scrollWidth -
+    resourceTrack.clientWidth;
 
-  const atEnd =
-    quickLinksTrack.scrollLeft >= maxScrollLeft - 8;
+  const isAtEnd =
+    resourceTrack.scrollLeft >= maximumScroll - 8;
 
-  if (atEnd) {
-    quickLinksTrack.scrollTo({
+  if (isAtEnd) {
+    resourceTrack.scrollTo({
       left: 0,
       behavior: "smooth"
     });
-  } else {
-    scrollResources(1);
+
+    return;
   }
+
+  moveResources(1);
 }
 
 function stopResourceAutoplay() {
-  if (resourceTimer) {
-    window.clearInterval(resourceTimer);
-    resourceTimer = null;
-  }
+  window.clearInterval(resourceTimer);
+  resourceTimer = null;
 }
 
 function startResourceAutoplay() {
   stopResourceAutoplay();
 
   if (
-    reducedMotionQuery.matches ||
-    resourceAutoplayPaused ||
-    resourceInteractionPaused ||
+    reducedMotion.matches ||
+    autoplayManuallyPaused ||
+    interactionPaused ||
     document.hidden
   ) {
     return;
   }
 
-  resourceTimer = window.setInterval(
-    moveToNextResource,
-    2000
-  );
+  resourceTimer = window.setInterval(() => {
+    moveToNextResource();
+  }, 5000);
 }
 
-function setResourceInteractionPaused(isPaused) {
-  resourceInteractionPaused = isPaused;
-
-  if (isPaused) {
-    stopResourceAutoplay();
-  } else {
-    startResourceAutoplay();
-  }
+function pauseForInteraction() {
+  interactionPaused = true;
+  stopResourceAutoplay();
 }
 
-function updateResourceAutoplayButton() {
-  if (!resourceAutoplay) {
-    return;
-  }
-
-  resourceAutoplay.setAttribute(
-    "aria-pressed",
-    String(resourceAutoplayPaused)
-  );
-
-  resourceAutoplay.textContent = resourceAutoplayPaused
-    ? "Resume automatic movement"
-    : "Pause automatic movement";
+function resumeAfterInteraction() {
+  interactionPaused = false;
+  startResourceAutoplay();
 }
 
 if (
-  quickLinksTrack &&
-  quickLinksPrevious &&
-  quickLinksNext
+  resourceTrack &&
+  previousButton &&
+  nextButton
 ) {
-  quickLinksPrevious.addEventListener("click", () => {
-    scrollResources(-1);
+  previousButton.addEventListener("click", () => {
+    moveResources(-1);
     startResourceAutoplay();
   });
 
-  quickLinksNext.addEventListener("click", () => {
+  nextButton.addEventListener("click", () => {
     moveToNextResource();
     startResourceAutoplay();
   });
 
-  quickLinksTrack.addEventListener(
+  resourceTrack.addEventListener(
     "scroll",
-    updateResourceProgress,
+    updateResourceCounter,
     { passive: true }
   );
 
-  quickLinksTrack.addEventListener("mouseenter", () => {
-    setResourceInteractionPaused(true);
-  });
+  resourceTrack.addEventListener(
+    "mouseenter",
+    pauseForInteraction
+  );
 
-  quickLinksTrack.addEventListener("mouseleave", () => {
-    setResourceInteractionPaused(false);
-  });
+  resourceTrack.addEventListener(
+    "mouseleave",
+    resumeAfterInteraction
+  );
 
-  quickLinksTrack.addEventListener("focusin", () => {
-    setResourceInteractionPaused(true);
-  });
+  resourceTrack.addEventListener(
+    "focusin",
+    pauseForInteraction
+  );
 
-  quickLinksTrack.addEventListener("focusout", (event) => {
-    if (!quickLinksTrack.contains(event.relatedTarget)) {
-      setResourceInteractionPaused(false);
+  resourceTrack.addEventListener(
+    "focusout",
+    (event) => {
+      if (!resourceTrack.contains(event.relatedTarget)) {
+        resumeAfterInteraction();
+      }
     }
-  });
+  );
 
-  quickLinksTrack.addEventListener(
+  resourceTrack.addEventListener(
     "pointerdown",
-    () => {
-      setResourceInteractionPaused(true);
-    },
+    pauseForInteraction,
     { passive: true }
   );
 
-  quickLinksTrack.addEventListener(
+  resourceTrack.addEventListener(
     "pointerup",
     () => {
       window.setTimeout(() => {
-        setResourceInteractionPaused(false);
-      }, 1200);
+        resumeAfterInteraction();
+      }, 1000);
     },
     { passive: true }
   );
 
-  quickLinksTrack.addEventListener("keydown", (event) => {
-    if (event.key === "ArrowRight") {
-      event.preventDefault();
-      scrollResources(1);
+  resourceTrack.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        moveResources(1);
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        moveResources(-1);
+      }
+
+      if (event.key === "Home") {
+        event.preventDefault();
+
+        resourceTrack.scrollTo({
+          left: 0,
+          behavior: "smooth"
+        });
+      }
+
+      if (event.key === "End") {
+        event.preventDefault();
+
+        resourceTrack.scrollTo({
+          left: resourceTrack.scrollWidth,
+          behavior: "smooth"
+        });
+      }
     }
+  );
 
-    if (event.key === "ArrowLeft") {
-      event.preventDefault();
-      scrollResources(-1);
-    }
-
-    if (event.key === "Home") {
-      event.preventDefault();
-
-      quickLinksTrack.scrollTo({
-        left: 0,
-        behavior: "smooth"
-      });
-    }
-
-    if (event.key === "End") {
-      event.preventDefault();
-
-      quickLinksTrack.scrollTo({
-        left: quickLinksTrack.scrollWidth,
-        behavior: "smooth"
-      });
-    }
-  });
-
-  window.addEventListener("resize", updateResourceProgress);
-
-  updateResourceProgress();
+  updateResourceCounter();
   startResourceAutoplay();
 }
 
-resourceAutoplay?.addEventListener("click", () => {
-  resourceAutoplayPaused = !resourceAutoplayPaused;
-  updateResourceAutoplayButton();
+if (autoplayButton) {
+  autoplayButton.addEventListener("click", () => {
+    autoplayManuallyPaused =
+      !autoplayManuallyPaused;
 
-  if (resourceAutoplayPaused) {
-    stopResourceAutoplay();
-  } else {
-    startResourceAutoplay();
-  }
-});
+    autoplayButton.textContent =
+      autoplayManuallyPaused
+        ? "Resume automatic movement"
+        : "Pause automatic movement";
 
-if (reducedMotionQuery.matches) {
-  resourceAutoplayPaused = true;
+    autoplayButton.setAttribute(
+      "aria-pressed",
+      String(autoplayManuallyPaused)
+    );
+
+    if (autoplayManuallyPaused) {
+      stopResourceAutoplay();
+    } else {
+      startResourceAutoplay();
+    }
+  });
+}
+
+if (reducedMotion.matches && autoplayButton) {
+  autoplayButton.hidden = true;
   stopResourceAutoplay();
-
-  if (resourceAutoplay) {
-    resourceAutoplay.hidden = true;
-  }
 }
 
 document.addEventListener("visibilitychange", () => {
@@ -643,9 +555,13 @@ document.addEventListener("visibilitychange", () => {
    RESOURCE SEARCH
    ========================================================= */
 
-function clearSearchHighlights() {
-  getResourceCards().forEach((card) => {
-    card.classList.remove("is-search-match");
+const searchForm = select("#searchForm");
+const searchInput = select("#searchInput");
+const searchStatus = select("#searchStatus");
+
+function clearSearchMatches() {
+  resourceCards.forEach((card) => {
+    card.classList.remove("match");
   });
 }
 
@@ -658,116 +574,87 @@ function normaliseSearchText(value) {
     .trim();
 }
 
-function getCardSearchText(card) {
-  return normaliseSearchText(
-    `${card.textContent || ""} ${card.dataset.resource || ""}`
-  );
-}
-
-function findResourceMatches(searchTerm) {
-  const words = normaliseSearchText(searchTerm)
+function findResourceMatches(query) {
+  const words = normaliseSearchText(query)
     .split(" ")
     .filter(Boolean);
 
-  return getResourceCards().filter((card) => {
-    const searchableText = getCardSearchText(card);
+  return resourceCards.filter((card) => {
+    const visibleText = card.textContent || "";
+    const keywords = card.dataset.keywords || "";
 
-    return words.every((word) =>
-      searchableText.includes(word)
+    const searchableText = normaliseSearchText(
+      `${visibleText} ${keywords}`
     );
+
+    return words.every((word) => {
+      return searchableText.includes(word);
+    });
   });
 }
 
-function focusFirstSearchMatch(matches) {
-  const firstMatch = matches[0];
+if (
+  searchForm &&
+  searchInput &&
+  searchStatus &&
+  resourceTrack
+) {
+  searchForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
-  if (!firstMatch || !quickLinksTrack) {
-    return;
-  }
+    clearSearchMatches();
 
-  matches.forEach((card) => {
-    card.classList.add("is-search-match");
-  });
+    const query = searchInput.value.trim();
 
-  const trackLeft =
-    quickLinksTrack.getBoundingClientRect().left;
-  const cardLeft =
-    firstMatch.getBoundingClientRect().left;
+    if (!query) {
+      searchStatus.textContent =
+        "Enter a word or phrase.";
 
-  quickLinksTrack.scrollTo({
-    left:
-      quickLinksTrack.scrollLeft +
-      cardLeft -
-      trackLeft -
-      4,
-    behavior: "smooth"
-  });
+      searchInput.focus();
+      return;
+    }
 
-  document
-    .getElementById("quick-links")
-    ?.scrollIntoView({
+    const matches = findResourceMatches(query);
+
+    if (matches.length === 0) {
+      searchStatus.textContent =
+        `No resources found for “${query}”.`;
+
+      return;
+    }
+
+    searchStatus.textContent =
+      `${matches.length} resource` +
+      `${matches.length > 1 ? "s" : ""} found.`;
+
+    matches.forEach((card) => {
+      card.classList.add("match");
+    });
+
+    const firstMatch = matches[0];
+
+    resourceTrack.scrollTo({
+      left:
+        firstMatch.offsetLeft -
+        resourceTrack.offsetLeft,
+      behavior: "smooth"
+    });
+
+    select("#resources")?.scrollIntoView({
       behavior: "smooth",
       block: "start"
     });
 
-  window.setTimeout(() => {
-    firstMatch.focus({ preventScroll: true });
-  }, 450);
-}
-
-if (searchForm && hubSearch && quickLinksTrack) {
-  searchForm.addEventListener("submit", (event) => {
-    event.preventDefault();
-    clearSearchHighlights();
-
-    const term = hubSearch.value.trim();
-
-    if (!term) {
-      searchStatus?.classList.add("is-error");
-
-      if (searchStatus) {
-        searchStatus.textContent =
-          "Enter a word or phrase to search the quick links.";
-      }
-
-      hubSearch.focus();
-      return;
-    }
-
-    const matches = findResourceMatches(term);
-
-    if (matches.length === 0) {
-      searchStatus?.classList.add("is-error");
-
-      if (searchStatus) {
-        searchStatus.textContent =
-          `No resources were found for “${term}”. ` +
-          "Try handbook, benefits, brand, learning, policies, " +
-          "IT, payroll or directory.";
-      }
-
-      return;
-    }
-
-    searchStatus?.classList.remove("is-error");
-
-    if (searchStatus) {
-      searchStatus.textContent =
-        matches.length === 1
-          ? `1 resource found for “${term}”.`
-          : `${matches.length} resources found for “${term}”.`;
-    }
-
-    focusFirstSearchMatch(matches);
+    window.setTimeout(() => {
+      firstMatch.focus({
+        preventScroll: true
+      });
+    }, 400);
   });
 
-  hubSearch.addEventListener("input", () => {
-    clearSearchHighlights();
-
-    if (searchStatus) {
-      searchStatus.textContent = "";
-      searchStatus.classList.remove("is-error");
-    }
+  searchInput.addEventListener("input", () => {
+    clearSearchMatches();
+    searchStatus.textContent = "";
   });
 }
 
@@ -775,8 +662,10 @@ if (searchForm && hubSearch && quickLinksTrack) {
    FOOTER YEAR
    ========================================================= */
 
-if (currentYear) {
-  currentYear.textContent = String(
+const year = select("#year");
+
+if (year) {
+  year.textContent = String(
     new Date().getFullYear()
   );
 }
